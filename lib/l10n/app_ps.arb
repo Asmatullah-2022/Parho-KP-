@@ -180,5 +180,21 @@
   "emptyTitle": "دلته لا هېڅ نشته",
   "emptyBody": "کله چې مواد شتون ولري، دلته به ښکاره شي.",
   "errorTitle": "یو څه ناسم شو",
-  "errorBody": "مهرباني وکړئ بیا هڅه وکړئ."
+  "errorBody": "مهرباني وکړئ بیا هڅه وکړئ.",
+
+  "favoritesTitle": "خوښې",
+  "favoritesEmpty": "لا تر اوسه هیڅ خوښ درس نشته. په یو درس باندې ⭐ کېکاږئ چې دلته خوندي شي.",
+  "favoriteAdded": "خوښو ته اضافه شو ⭐",
+  "favoriteRemoved": "له خوښو لرې شو",
+  "favoriteAction": "خوښ",
+
+  "searchTitle": "لټون",
+  "searchHint": "درسونه ولټوئ…",
+  "searchPromptBody": "د خپلو درسونو لټولو لپاره ولیکئ — لکه: Fractions، بوټي، اسم.",
+  "searchNoResults": "هیڅ درس ونه موندل شو. بله کلمه هڅه وکړئ.",
+
+  "editProfileTitle": "پروفایل سمول",
+  "profileUpdated": "پروفایل تازه شو",
+
+  "aiEasyExample": "ساده مثال راکړئ"
 }

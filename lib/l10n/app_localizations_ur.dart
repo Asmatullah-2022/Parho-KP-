@@ -500,4 +500,42 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get errorBody => 'براہِ کرم دوبارہ کوشش کریں۔';
+
+  @override
+  String get favoritesTitle => 'پسندیدہ';
+
+  @override
+  String get favoritesEmpty =>
+      'ابھی کوئی پسندیدہ سبق نہیں۔ کسی سبق پر ⭐ دبائیں تاکہ یہاں محفوظ ہو جائے۔';
+
+  @override
+  String get favoriteAdded => 'پسندیدہ میں شامل ⭐';
+
+  @override
+  String get favoriteRemoved => 'پسندیدہ سے ہٹا دیا گیا';
+
+  @override
+  String get favoriteAction => 'پسندیدہ';
+
+  @override
+  String get searchTitle => 'تلاش';
+
+  @override
+  String get searchHint => 'اسباق تلاش کریں…';
+
+  @override
+  String get searchPromptBody =>
+      'اپنے اسباق تلاش کرنے کے لیے لکھیں — مثلاً: Fractions، پودے، اسم۔';
+
+  @override
+  String get searchNoResults => 'کوئی سبق نہیں ملا۔ کوئی اور لفظ آزمائیں۔';
+
+  @override
+  String get editProfileTitle => 'پروفائل میں تبدیلی';
+
+  @override
+  String get profileUpdated => 'پروفائل اپ ڈیٹ ہو گیا';
+
+  @override
+  String get aiEasyExample => 'آسان مثال دیں';
 }

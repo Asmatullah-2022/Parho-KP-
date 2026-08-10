@@ -180,5 +180,21 @@
   "emptyTitle": "ابھی یہاں کچھ نہیں",
   "emptyBody": "مواد دستیاب ہونے پر یہاں ظاہر ہوگا۔",
   "errorTitle": "کچھ غلط ہو گیا",
-  "errorBody": "براہِ کرم دوبارہ کوشش کریں۔"
+  "errorBody": "براہِ کرم دوبارہ کوشش کریں۔",
+
+  "favoritesTitle": "پسندیدہ",
+  "favoritesEmpty": "ابھی کوئی پسندیدہ سبق نہیں۔ کسی سبق پر ⭐ دبائیں تاکہ یہاں محفوظ ہو جائے۔",
+  "favoriteAdded": "پسندیدہ میں شامل ⭐",
+  "favoriteRemoved": "پسندیدہ سے ہٹا دیا گیا",
+  "favoriteAction": "پسندیدہ",
+
+  "searchTitle": "تلاش",
+  "searchHint": "اسباق تلاش کریں…",
+  "searchPromptBody": "اپنے اسباق تلاش کرنے کے لیے لکھیں — مثلاً: Fractions، پودے، اسم۔",
+  "searchNoResults": "کوئی سبق نہیں ملا۔ کوئی اور لفظ آزمائیں۔",
+
+  "editProfileTitle": "پروفائل میں تبدیلی",
+  "profileUpdated": "پروفائل اپ ڈیٹ ہو گیا",
+
+  "aiEasyExample": "آسان مثال دیں"
 }

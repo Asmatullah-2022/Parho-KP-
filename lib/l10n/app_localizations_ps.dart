@@ -498,4 +498,42 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get errorBody => 'مهرباني وکړئ بیا هڅه وکړئ.';
+
+  @override
+  String get favoritesTitle => 'خوښې';
+
+  @override
+  String get favoritesEmpty =>
+      'لا تر اوسه هیڅ خوښ درس نشته. په یو درس باندې ⭐ کېکاږئ چې دلته خوندي شي.';
+
+  @override
+  String get favoriteAdded => 'خوښو ته اضافه شو ⭐';
+
+  @override
+  String get favoriteRemoved => 'له خوښو لرې شو';
+
+  @override
+  String get favoriteAction => 'خوښ';
+
+  @override
+  String get searchTitle => 'لټون';
+
+  @override
+  String get searchHint => 'درسونه ولټوئ…';
+
+  @override
+  String get searchPromptBody =>
+      'د خپلو درسونو لټولو لپاره ولیکئ — لکه: Fractions، بوټي، اسم.';
+
+  @override
+  String get searchNoResults => 'هیڅ درس ونه موندل شو. بله کلمه هڅه وکړئ.';
+
+  @override
+  String get editProfileTitle => 'پروفایل سمول';
+
+  @override
+  String get profileUpdated => 'پروفایل تازه شو';
+
+  @override
+  String get aiEasyExample => 'ساده مثال راکړئ';
 }

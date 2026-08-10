@@ -237,6 +237,13 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<List<Lesson>> allLessons() => select(lessons).get();
+
+  Future<List<Lesson>> lessonsByIds(List<int> ids) {
+    if (ids.isEmpty) return Future.value([]);
+    return (select(lessons)..where((t) => t.id.isIn(ids))).get();
+  }
+
   Future<Lesson?> lessonById(int id) {
     return (select(lessons)..where((t) => t.id.equals(id)))
         .getSingleOrNull();
@@ -394,6 +401,39 @@ class AppDatabase extends _$AppDatabase {
         ),
       );
     }
+  }
+
+  // ---- favorites ---------------------------------------------------------
+
+  Future<bool> isFavorite(int studentId, int lessonId) async {
+    final row = await (select(favorites)
+          ..where((t) =>
+              t.studentId.equals(studentId) & t.lessonId.equals(lessonId)))
+        .getSingleOrNull();
+    return row != null;
+  }
+
+  Future<List<int>> favoriteLessonIds(int studentId) async {
+    final rows = await (select(favorites)
+          ..where((t) => t.studentId.equals(studentId)))
+        .get();
+    return rows.map((r) => r.lessonId).toList();
+  }
+
+  /// Toggles a favorite and returns the new state (true = now favorited).
+  Future<bool> toggleFavorite(int studentId, int lessonId) async {
+    final existing = await (select(favorites)
+          ..where((t) =>
+              t.studentId.equals(studentId) & t.lessonId.equals(lessonId)))
+        .getSingleOrNull();
+    if (existing != null) {
+      await (delete(favorites)..where((t) => t.id.equals(existing.id))).go();
+      return false;
+    }
+    await into(favorites).insert(
+      FavoritesCompanion.insert(studentId: studentId, lessonId: lessonId),
+    );
+    return true;
   }
 
   // ---- student -----------------------------------------------------------

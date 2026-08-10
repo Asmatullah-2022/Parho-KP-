@@ -20,7 +20,8 @@ class SetupScreen extends ConsumerStatefulWidget {
 
 class _SetupScreenState extends ConsumerState<SetupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  // Pre-filled with the demo student's name; fully editable.
+  final _nameController = TextEditingController(text: 'Ahmed');
   int _grade = 5;
   bool _saving = false;
 

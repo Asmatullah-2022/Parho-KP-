@@ -7,7 +7,7 @@ import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/providers/app_settings.dart';
 import '../../shared/services/tts_service.dart';
-import 'mock_tutor.dart';
+import 'tutor_service.dart';
 
 class _Msg {
   _Msg(this.text, this.fromAi);
@@ -30,6 +30,7 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
   bool _thinking = false;
+  String _lastUserText = '';
 
   @override
   void initState() {
@@ -62,18 +63,52 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   Future<void> _send(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty || _thinking) return;
-    final code = ref.read(settingsControllerProvider).language.code;
+    _lastUserText = trimmed;
     _controller.clear();
+    await _ask(
+      userBubble: trimmed,
+      request: TutorRequest(
+        message: trimmed,
+        languageCode: ref.read(settingsControllerProvider).language.code,
+      ),
+    );
+  }
+
+  /// Runs a guided action (explain lesson, easy example, translate, …).
+  Future<void> _sendIntent(TutorIntent intent, String actionLabel) async {
+    if (_thinking) return;
+    await _ask(
+      userBubble: actionLabel,
+      request: TutorRequest(
+        message: _lastUserText,
+        languageCode: ref.read(settingsControllerProvider).language.code,
+        intent: intent,
+      ),
+    );
+  }
+
+  /// Adds the student bubble, shows a thinking indicator, then appends the
+  /// tutor's reply from the (mock) [TutorService].
+  Future<void> _ask({
+    required String userBubble,
+    required TutorRequest request,
+  }) async {
+    // Friendly fallback captured before any async gap.
+    final fallback = AppLocalizations.of(context).errorBody;
     setState(() {
-      _messages.add(_Msg(trimmed, false));
+      _messages.add(_Msg(userBubble, false));
       _thinking = true;
     });
     _scrollToEnd();
 
-    // Simulate a brief "thinking" pause (no network call).
-    await Future<void>.delayed(const Duration(milliseconds: 650));
+    String reply;
+    try {
+      reply = await ref.read(tutorServiceProvider).respond(request);
+    } catch (_) {
+      // Never surface a raw error to a child — give a friendly fallback.
+      reply = fallback;
+    }
     if (!mounted) return;
-    final reply = MockTutor.reply(trimmed, code);
     setState(() {
       _thinking = false;
       _messages.add(_Msg(reply, true));
@@ -121,15 +156,21 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
               ),
             ),
             _QuickActions(
-              onExplain: () => _send(l10n.aiExplainLesson),
-              onDidntUnderstand: () => _send(l10n.iDidntUnderstand),
-              onVoice: () {
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
-                      SnackBar(content: Text(l10n.aiVoiceComingSoon)));
-              },
-              onListen: _speakLast,
+              actions: [
+                (Icons.menu_book_rounded, l10n.aiExplainLesson,
+                    () => _sendIntent(
+                        TutorIntent.explainLesson, l10n.aiExplainLesson)),
+                (Icons.emoji_objects_rounded, l10n.aiEasyExample,
+                    () => _sendIntent(
+                        TutorIntent.easyExample, l10n.aiEasyExample)),
+                (Icons.translate_rounded, l10n.helpExplainInUrdu,
+                    () => _sendIntent(
+                        TutorIntent.inUrdu, l10n.helpExplainInUrdu)),
+                (Icons.translate_rounded, l10n.helpExplainInPashto,
+                    () => _sendIntent(
+                        TutorIntent.inPashto, l10n.helpExplainInPashto)),
+                (Icons.volume_up_rounded, l10n.aiListenAnswer, _speakLast),
+              ],
             ),
             _Composer(
               controller: _controller,
@@ -229,29 +270,20 @@ class _Bubble extends StatelessWidget {
 }
 
 class _QuickActions extends StatelessWidget {
-  const _QuickActions({
-    required this.onExplain,
-    required this.onDidntUnderstand,
-    required this.onVoice,
-    required this.onListen,
-  });
-  final VoidCallback onExplain;
-  final VoidCallback onDidntUnderstand;
-  final VoidCallback onVoice;
-  final VoidCallback onListen;
+  const _QuickActions({required this.actions});
+
+  /// Each action is (icon, label, onTap).
+  final List<(IconData, String, VoidCallback)> actions;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Row(
         children: [
-          _Chip(icon: Icons.menu_book_rounded, label: l10n.aiExplainLesson, onTap: onExplain),
-          _Chip(icon: Icons.help_outline_rounded, label: l10n.iDidntUnderstand, onTap: onDidntUnderstand),
-          _Chip(icon: Icons.mic_rounded, label: l10n.aiAskByVoice, onTap: onVoice),
-          _Chip(icon: Icons.volume_up_rounded, label: l10n.aiListenAnswer, onTap: onListen),
+          for (final a in actions)
+            _Chip(icon: a.$1, label: a.$2, onTap: a.$3),
         ],
       ),
     );

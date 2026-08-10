@@ -180,5 +180,21 @@
   "emptyTitle": "Nothing here yet",
   "emptyBody": "Content will appear here once available.",
   "errorTitle": "Something went wrong",
-  "errorBody": "Please try again."
+  "errorBody": "Please try again.",
+
+  "favoritesTitle": "Favorites",
+  "favoritesEmpty": "No favorite lessons yet. Tap the ⭐ on a lesson to save it here.",
+  "favoriteAdded": "Added to favorites ⭐",
+  "favoriteRemoved": "Removed from favorites",
+  "favoriteAction": "Favorite",
+
+  "searchTitle": "Search",
+  "searchHint": "Search lessons…",
+  "searchPromptBody": "Type to search your lessons — for example: Fractions, Plants, Nouns.",
+  "searchNoResults": "No lessons found. Try another word.",
+
+  "editProfileTitle": "Edit Profile",
+  "profileUpdated": "Profile updated",
+
+  "aiEasyExample": "Give an easy example"
 }

@@ -81,6 +81,18 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
                 _ProfileTile(
+                  icon: Icons.edit_rounded,
+                  color: AppColors.blue,
+                  label: l10n.editProfileTitle,
+                  onTap: () => context.push(Routes.editProfile),
+                ),
+                _ProfileTile(
+                  icon: Icons.star_rounded,
+                  color: AppColors.yellowDark,
+                  label: l10n.favoritesTitle,
+                  onTap: () => context.push(Routes.favorites),
+                ),
+                _ProfileTile(
                   icon: Icons.bar_chart_rounded,
                   color: AppColors.green,
                   label: l10n.profileLearningProgress,

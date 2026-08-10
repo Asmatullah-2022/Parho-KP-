@@ -36,14 +36,44 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     ref.invalidate(continueTargetProvider);
   }
 
+  Future<void> _toggleFavorite(AppLocalizations l10n) async {
+    final student = await ref.read(currentStudentProvider.future);
+    if (student == null) return;
+    final nowFav = await ref
+        .read(learningRepositoryProvider)
+        .toggleFavorite(student.id, widget.lessonId);
+    ref.invalidate(isFavoriteProvider(widget.lessonId));
+    ref.invalidate(favoriteLessonsProvider);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(nowFav ? l10n.favoriteAdded : l10n.favoriteRemoved),
+      ));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final langCode = ref.watch(languageCodeProvider);
     final async = ref.watch(lessonWithSubjectProvider(widget.lessonId));
+    final isFav = ref.watch(isFavoriteProvider(widget.lessonId));
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            tooltip: l10n.favoriteAction,
+            icon: Icon(
+              (isFav.value ?? false)
+                  ? Icons.star_rounded
+                  : Icons.star_border_rounded,
+              color: (isFav.value ?? false) ? AppColors.yellowDark : null,
+            ),
+            onPressed: () => _toggleFavorite(l10n),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: async.when(
           loading: () => const LoadingState(),

@@ -52,6 +52,26 @@ class MockTutor {
     );
   }
 
+  /// A gentle "explain the lesson" style reply.
+  static String explainLesson(String languageCode) {
+    return _byLang(
+      languageCode,
+      en: "Let's take it step by step. Read the objective, then the example, and try one small question. Tell me the topic and I'll explain it simply.",
+      ur: 'آئیے قدم بہ قدم چلتے ہیں۔ پہلے مقصد پڑھیں، پھر مثال، اور ایک چھوٹا سوال حل کریں۔ مجھے موضوع بتائیں تو میں آسان انداز میں سمجھاؤں گا۔',
+      ps: 'راځئ ګام په ګام یې وکړو. لومړی موخه ولولئ، بیا مثال، او یوه کوچنۍ پوښتنه حل کړئ. موضوع راته ووایاست چې په ساده ډول یې تشریح کړم.',
+    );
+  }
+
+  /// A concrete, easy worked example (fractions).
+  static String easyExample(String languageCode) {
+    return _byLang(
+      languageCode,
+      en: 'Imagine one bread cut into 4 equal parts. If you take one part, that is 1/4. If you take two parts, that is 2/4 = 1/2.',
+      ur: 'ایک روٹی کو چار برابر حصوں میں تقسیم کرنے کا تصور کریں۔ اگر آپ ایک حصہ لیتے ہیں تو یہ 1/4 ہے۔ اگر دو حصے لیں تو یہ 2/4 = 1/2 ہے۔',
+      ps: 'تصور وکړئ چې یوه ډوډۍ په څلورو برابرو برخو وویشل شي. که یوه برخه واخلئ، دا ۱/۴ ده. که دوه برخې واخلئ، دا ۲/۴ = ۱/۲ ده.',
+    );
+  }
+
   /// A tiny follow-up practice question the tutor can offer.
   static String practicePrompt(String languageCode) {
     return _byLang(

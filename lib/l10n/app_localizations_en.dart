@@ -499,4 +499,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorBody => 'Please try again.';
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesEmpty =>
+      'No favorite lessons yet. Tap the ⭐ on a lesson to save it here.';
+
+  @override
+  String get favoriteAdded => 'Added to favorites ⭐';
+
+  @override
+  String get favoriteRemoved => 'Removed from favorites';
+
+  @override
+  String get favoriteAction => 'Favorite';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchHint => 'Search lessons…';
+
+  @override
+  String get searchPromptBody =>
+      'Type to search your lessons — for example: Fractions, Plants, Nouns.';
+
+  @override
+  String get searchNoResults => 'No lessons found. Try another word.';
+
+  @override
+  String get editProfileTitle => 'Edit Profile';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get aiEasyExample => 'Give an easy example';
 }

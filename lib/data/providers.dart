@@ -95,5 +95,36 @@ final downloadStatesProvider =
   return repo.downloadStates(student.grade);
 });
 
+/// Whether a given lesson is favorited by the current student.
+final isFavoriteProvider =
+    FutureProvider.family<bool, int>((ref, lessonId) async {
+  final repo = ref.watch(learningRepositoryProvider);
+  final student = await ref.watch(currentStudentProvider.future);
+  if (student == null) return false;
+  return repo.isFavorite(student.id, lessonId);
+});
+
+/// The current student's favorite lessons (with their subjects).
+final favoriteLessonsProvider =
+    FutureProvider<List<({Lesson lesson, Subject? subject})>>((ref) async {
+  final repo = ref.watch(learningRepositoryProvider);
+  final student = await ref.watch(currentStudentProvider.future);
+  if (student == null) return [];
+  return repo.favoriteLessons(student.id);
+});
+
+/// The current search query (offline lesson search).
+final searchQueryProvider = StateProvider<String>((ref) => '');
+
+/// Search results for [searchQueryProvider] over the student's grade.
+final searchResultsProvider =
+    FutureProvider<List<({Lesson lesson, Subject? subject})>>((ref) async {
+  final repo = ref.watch(learningRepositoryProvider);
+  final student = await ref.watch(currentStudentProvider.future);
+  final query = ref.watch(searchQueryProvider);
+  if (student == null) return [];
+  return repo.searchLessons(student.grade, query);
+});
+
 /// Bumped to force dependent providers to refetch after a write.
 final refreshTickProvider = StateProvider<int>((ref) => 0);

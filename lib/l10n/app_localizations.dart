@@ -1029,6 +1029,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please try again.'**
   String get errorBody;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite lessons yet. Tap the ⭐ on a lesson to save it here.'**
+  String get favoritesEmpty;
+
+  /// No description provided for @favoriteAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites ⭐'**
+  String get favoriteAdded;
+
+  /// No description provided for @favoriteRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from favorites'**
+  String get favoriteRemoved;
+
+  /// No description provided for @favoriteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get favoriteAction;
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get searchTitle;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search lessons…'**
+  String get searchHint;
+
+  /// No description provided for @searchPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search your lessons — for example: Fractions, Plants, Nouns.'**
+  String get searchPromptBody;
+
+  /// No description provided for @searchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons found. Try another word.'**
+  String get searchNoResults;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfileTitle;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get profileUpdated;
+
+  /// No description provided for @aiEasyExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Give an easy example'**
+  String get aiEasyExample;
 }
 
 class _AppLocalizationsDelegate
