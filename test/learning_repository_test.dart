@@ -95,6 +95,51 @@ void main() {
     expect(after, greaterThan(before));
   });
 
+  test('opening a lesson then finishing its quiz does not crash (regression)',
+      () async {
+    // Reproduces a UNIQUE(studentId, lessonId) conflict: opening a lesson
+    // writes a progress row, then the quiz updates the same row.
+    final student =
+        await repo.createStudent(name: 'Zoya', grade: 5, languageCode: 'en');
+    final math = (await repo.subjectsForGrade(5))
+        .firstWhere((s) => s.code == 'math');
+    final lesson = (await db.lessonsForSubject(math.id)).first;
+
+    // Open the lesson (creates lesson_progress at 50%).
+    await repo.markLessonProgress(student, lesson.id, completed: false);
+    // Finish its quiz (must UPDATE the same row, not insert a duplicate).
+    final questions = await repo.questionsForLesson(lesson.id);
+    await repo.saveQuizResult(
+      studentId: student,
+      lessonId: lesson.id,
+      questions: questions,
+      selected: questions.map((q) => q.correctIndex).toList(),
+    );
+
+    // Exactly one progress row for this student+lesson, marked completed.
+    final progress = await db.progressForStudent(student);
+    final rows = progress.where((p) => p.lessonId == lesson.id).toList();
+    expect(rows.length, 1);
+    expect(rows.first.completed, isTrue);
+  });
+
+  test('toggling a download twice does not crash (regression)', () async {
+    final science = (await repo.subjectsForGrade(5))
+        .firstWhere((s) => s.code == 'science');
+    // Download, then delete, then download again — each is an upsert on the
+    // UNIQUE(subjectId) index.
+    await repo.setDownloaded(5, science.id, true);
+    await repo.setDownloaded(5, science.id, false);
+    await repo.setDownloaded(5, science.id, true);
+
+    final states = await repo.downloadStates(5);
+    final row = states.firstWhere((d) => d.subject.id == science.id);
+    expect(row.isDownloaded, isTrue);
+    // Only one downloads row exists for the subject.
+    final all = await db.allDownloads();
+    expect(all.where((d) => d.subjectId == science.id).length, 1);
+  });
+
   test('status buckets map percentages correctly', () {
     expect(statusFromPercent(80), ProgressStatus.strong);
     expect(statusFromPercent(50), ProgressStatus.improving);

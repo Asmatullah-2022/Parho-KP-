@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,23 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'shared/providers/app_settings.dart';
+
+/// Provides default Cupertino localizations for any locale whose translations
+/// are not bundled (e.g. Pashto), so Cupertino widgets never crash the app.
+class _FallbackCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _FallbackCupertinoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      DefaultCupertinoLocalizations.load(locale);
+
+  @override
+  bool shouldReload(_FallbackCupertinoLocalizationsDelegate old) => false;
+}
 
 /// Root widget: wires the router, theme (light/dark/system), locale and the
 /// app-wide font-size scale.
@@ -30,6 +48,9 @@ class ParhoKpApp extends ConsumerWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        // Pashto (ps) has no bundled Cupertino translations; fall back to the
+        // default so the app never throws an "unsupported locale" error.
+        _FallbackCupertinoLocalizationsDelegate(),
       ],
       routerConfig: router,
       builder: (context, child) {

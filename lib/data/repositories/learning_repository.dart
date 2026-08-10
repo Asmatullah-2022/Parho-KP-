@@ -205,7 +205,7 @@ class LearningRepository {
 
   Future<List<DownloadState>> downloadStates(int grade) async {
     final subjects = await db.subjectsForGrade(grade);
-    final downloads = await db.watchDownloads().first;
+    final downloads = await db.allDownloads();
     final bySubject = {for (final d in downloads) d.subjectId: d};
     return subjects
         .map((s) => DownloadState(

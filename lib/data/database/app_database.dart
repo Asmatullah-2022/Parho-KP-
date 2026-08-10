@@ -277,15 +277,28 @@ class AppDatabase extends _$AppDatabase {
         existing == null ? percent : (percent > existing.percent ? percent : existing.percent);
     final newCompleted = (existing?.completed ?? false) || completed;
 
-    await into(lessonProgress).insertOnConflictUpdate(
-      LessonProgressCompanion.insert(
-        studentId: studentId,
-        lessonId: lessonId,
-        percent: Value(newPercent),
-        completed: Value(newCompleted),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    if (existing == null) {
+      await into(lessonProgress).insert(
+        LessonProgressCompanion.insert(
+          studentId: studentId,
+          lessonId: lessonId,
+          percent: Value(newPercent),
+          completed: Value(newCompleted),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    } else {
+      // Update the existing row by its primary key. Using insertOnConflictUpdate
+      // would not resolve the UNIQUE(studentId, lessonId) index conflict.
+      await (update(lessonProgress)..where((t) => t.id.equals(existing.id)))
+          .write(
+        LessonProgressCompanion(
+          percent: Value(newPercent),
+          completed: Value(newCompleted),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
   }
 
   Future<List<LessonProgressData>> progressForStudent(int studentId) {
@@ -346,21 +359,41 @@ class AppDatabase extends _$AppDatabase {
     return (select(downloads)).watch();
   }
 
+  Future<List<Download>> allDownloads() {
+    return (select(downloads)).get();
+  }
+
   Future<void> setDownloaded({
     required int grade,
     required int subjectId,
     required bool isDownloaded,
     required int sizeBytes,
   }) async {
-    await into(downloads).insertOnConflictUpdate(
-      DownloadsCompanion.insert(
-        grade: grade,
-        subjectId: subjectId,
-        isDownloaded: Value(isDownloaded),
-        sizeBytes: Value(isDownloaded ? sizeBytes : 0),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    final existing = await (select(downloads)
+          ..where((t) => t.subjectId.equals(subjectId)))
+        .getSingleOrNull();
+    if (existing == null) {
+      await into(downloads).insert(
+        DownloadsCompanion.insert(
+          grade: grade,
+          subjectId: subjectId,
+          isDownloaded: Value(isDownloaded),
+          sizeBytes: Value(isDownloaded ? sizeBytes : 0),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    } else {
+      // Update by primary key — insertOnConflictUpdate would not resolve the
+      // UNIQUE(subjectId) index conflict.
+      await (update(downloads)..where((t) => t.id.equals(existing.id))).write(
+        DownloadsCompanion(
+          grade: Value(grade),
+          isDownloaded: Value(isDownloaded),
+          sizeBytes: Value(isDownloaded ? sizeBytes : 0),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
   }
 
   // ---- student -----------------------------------------------------------
