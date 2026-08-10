@@ -1,0 +1,53 @@
+name: parho_kp
+description: "Parho KP - AI Learning Companion. Offline-first learning app for students in Khyber Pakhtunkhwa."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Local database (offline-first)
+  drift: ^2.23.1
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Lightweight key-value prefs for bootstrap flags
+  shared_preferences: ^2.3.4
+
+  # On-device text-to-speech ("Audio Learning" — works offline, no bundled media)
+  flutter_tts: ^4.2.0
+
+  # Internationalization helpers
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Drift code generation
+  drift_dev: ^2.23.1
+  build_runner: ^2.4.14
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/reference/
