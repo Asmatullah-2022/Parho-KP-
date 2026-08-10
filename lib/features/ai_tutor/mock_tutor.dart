@@ -177,6 +177,28 @@ abstract final class MockTutor {
     return null;
   }
 
+  /// A short recommendation based on the student's recent quiz score for the
+  /// current lesson (review vs. move on). Returns '' when no score is known.
+  static String performanceNote(String code, int? recentQuizPercent) {
+    if (recentQuizPercent == null) return '';
+    if (recentQuizPercent < 60) {
+      return _byLang(code,
+          en: " Your last quiz here was $recentQuizPercent% — let's review this topic again together.",
+          ur: ' آپ کا پچھلا Quiz $recentQuizPercent% تھا — آئیے اس موضوع کو دوبارہ دہراتے ہیں۔',
+          ps: ' ستاسو وروستی Quiz $recentQuizPercent% و — راځئ دا موضوع بیا تکرار کړو.');
+    }
+    if (recentQuizPercent >= 80) {
+      return _byLang(code,
+          en: " Great — your last quiz was $recentQuizPercent%. You look ready for the next lesson!",
+          ur: ' بہت خوب — آپ کا پچھلا Quiz $recentQuizPercent% تھا۔ آپ اگلے سبق کے لیے تیار لگتے ہیں!',
+          ps: ' ډېر ښه — ستاسو وروستی Quiz $recentQuizPercent% و. تاسو د بل درس لپاره چمتو ښکارئ!');
+    }
+    return _byLang(code,
+        en: " Keep practicing — a little more and you'll master this.",
+        ur: ' مشق جاری رکھیں — تھوڑی اور محنت سے آپ اس میں ماہر ہو جائیں گے۔',
+        ps: ' تمرین ته دوام ورکړئ — لږ نور او تاسو به پرې ماهر شئ.');
+  }
+
   /// Friendly fallback when the mock has no answer. Never pretends to know.
   static String fallback(String code) {
     return _byLang(code,

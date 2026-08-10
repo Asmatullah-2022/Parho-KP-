@@ -587,4 +587,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aiVoiceOutputUnavailable =>
       'This language\'s voice isn\'t installed on your device yet.';
+
+  @override
+  String get reportTitle => 'Learning Report';
+
+  @override
+  String get reportLessonsCompleted => 'Lessons completed';
+
+  @override
+  String get reportQuizAverage => 'Quiz average';
+
+  @override
+  String get reportStrongTopics => 'Strong subjects';
+
+  @override
+  String get reportNeedsPractice => 'Needs practice';
+
+  @override
+  String get reportRecommended => 'Recommended next lesson';
+
+  @override
+  String get reportRecentActivity => 'Recent activity';
+
+  @override
+  String get teacherSubjectPerformance => 'Subject performance';
+
+  @override
+  String get teacherNeedingSupport => 'Students needing support';
+
+  @override
+  String get teacherStudentList => 'Student list';
+
+  @override
+  String get teacherWeakAreas => 'Weak area';
+
+  @override
+  String get offlinePackageSize => 'Package size';
+
+  @override
+  String get offlineAvailable => 'Available';
+
+  @override
+  String get offlineUpdate => 'Update';
 }

@@ -1,3 +1,4 @@
+import '../content/content_importer.dart';
 import '../database/app_database.dart';
 import '../models/view_models.dart';
 
@@ -40,6 +41,15 @@ class LearningRepository {
 
   Future<List<Subject>> subjectsForGrade(int grade) =>
       db.subjectsForGrade(grade);
+
+  /// Imports an additional content package from JSON text (bundled asset,
+  /// downloaded package, or future server response). Replaces that grade's
+  /// content so re-import updates cleanly. Works fully offline.
+  Future<void> importContentPackageFromJson(String jsonText) async {
+    final importer = ContentImporter(db);
+    // Parse first, then replace the grade in one go.
+    await importer.importJson(jsonText);
+  }
 
   /// All subjects for a grade, each paired with its lessons (for the Quiz hub).
   Future<List<({Subject subject, List<Lesson> lessons})>> lessonsBySubject(
@@ -232,6 +242,84 @@ class LearningRepository {
   }
 
   Future<QuizAttempt?> attempt(int id) => db.quizAttemptById(id);
+
+  /// The student's most recent quiz score (0-100) for a lesson, or null.
+  Future<int?> latestQuizPercent(int studentId, int lessonId) async {
+    final attempts = (await db.attemptsForStudent(studentId))
+        .where((a) => a.lessonId == lessonId)
+        .toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    if (attempts.isEmpty) return null;
+    final a = attempts.first;
+    return a.total == 0 ? 0 : ((a.score / a.total) * 100).round();
+  }
+
+  /// Builds a full learning report for [student] from local data only.
+  Future<StudentReport> buildStudentReport(Student student) async {
+    final subjects = await subjectProgressList(student);
+    final overall = subjects.isEmpty
+        ? 0
+        : (subjects.fold<int>(0, (a, b) => a + b.percent) / subjects.length)
+            .round();
+
+    final allLessons = <Lesson>[];
+    for (final sp in subjects) {
+      allLessons.addAll(await db.lessonsForSubject(sp.subject.id));
+    }
+    final progress = await db.progressForStudent(student.id);
+    final completed = progress.where((p) => p.completed).map((p) => p.lessonId).toSet();
+    final lessonIds = allLessons.map((l) => l.id).toSet();
+    final lessonsCompleted =
+        completed.where(lessonIds.contains).length;
+
+    final attempts = await db.attemptsForStudent(student.id);
+    final quizAvg = attempts.isEmpty
+        ? 0
+        : (attempts
+                    .map((a) => a.total == 0 ? 0 : (a.score / a.total) * 100)
+                    .fold<double>(0, (a, b) => a + b) /
+                attempts.length)
+            .round();
+
+    final strong = subjects.where((s) => s.status == ProgressStatus.strong).toList()
+      ..sort((a, b) => b.percent.compareTo(a.percent));
+    final needs = subjects
+        .where((s) => s.status == ProgressStatus.needsPractice)
+        .toList()
+      ..sort((a, b) => a.percent.compareTo(b.percent));
+
+    // Recent activity from the latest quiz attempts.
+    final byId = {for (final l in allLessons) l.id: l};
+    final recent = attempts.toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    final activity = <ActivityEntry>[];
+    for (final a in recent.take(5)) {
+      final lesson = byId[a.lessonId];
+      final title = lesson?.titleEn ?? 'Quiz';
+      final pct = a.total == 0 ? 0 : ((a.score / a.total) * 100).round();
+      activity.add(ActivityEntry(
+        title: title,
+        detail: '${a.score}/${a.total} ($pct%)',
+        when: a.finishedAt ?? a.startedAt,
+      ));
+    }
+
+    final next = await continueTarget(student);
+
+    return StudentReport(
+      student: student,
+      overallPercent: overall,
+      subjects: subjects,
+      lessonsCompleted: lessonsCompleted,
+      totalLessons: allLessons.length,
+      quizAveragePercent: quizAvg,
+      quizzesTaken: attempts.length,
+      strong: strong,
+      needsPractice: needs,
+      recentActivity: activity,
+      nextLesson: next,
+    );
+  }
 
   // ---- offline downloads -------------------------------------------------
 

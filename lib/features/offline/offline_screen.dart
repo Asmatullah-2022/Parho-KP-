@@ -133,11 +133,12 @@ class OfflineScreen extends ConsumerWidget {
                                       ?.copyWith(
                                           fontWeight: FontWeight.w700),
                                 ),
-                                if (d.isDownloaded)
-                                  Text(_formatSize(d.sizeBytes),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
+                                Text(
+                                  d.isDownloaded
+                                      ? '${l10n.offlinePackageSize}: ${_formatSize(d.sizeBytes)}'
+                                      : l10n.offlineAvailable,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                               ],
                             ),
                           ),
@@ -145,6 +146,7 @@ class OfflineScreen extends ConsumerWidget {
                             isDownloaded: d.isDownloaded,
                             onDownload: () => toggle(d, true),
                             onDelete: () => toggle(d, false),
+                            onUpdate: () => toggle(d, true),
                           ),
                         ],
                       ),

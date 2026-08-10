@@ -13,7 +13,10 @@ import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/profile/edit_profile_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/progress/progress_screen.dart';
+import '../../features/report/student_report_screen.dart';
 import '../../features/search/search_screen.dart';
+import '../../features/teacher/class_detail_screen.dart';
+import '../../features/teacher/class_student_screen.dart';
 import '../../features/quiz/quiz_hub_screen.dart';
 import '../../features/quiz/quiz_result_screen.dart';
 import '../../features/quiz/quiz_screen.dart';
@@ -151,6 +154,26 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.editProfile,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: Routes.report,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const StudentReportScreen(),
+      ),
+      GoRoute(
+        path: '${Routes.teacherClass}/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) =>
+            ClassDetailScreen(classId: _idParam(state) ?? 0),
+      ),
+      GoRoute(
+        path: '${Routes.teacherStudent}/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => ClassStudentScreen(
+          classId: _idParam(state) ?? 0,
+          studentIndex:
+              int.tryParse(state.uri.queryParameters['i'] ?? '') ?? 0,
+        ),
       ),
 
       // Bottom-navigation shell with five branches.

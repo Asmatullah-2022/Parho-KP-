@@ -270,6 +270,57 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<Lesson>> allLessons() => select(lessons).get();
 
+  /// Removes all content (and dependent rows) for one grade. Foreign-key
+  /// cascades are not relied upon, so child rows are deleted explicitly.
+  Future<void> deleteGradeContent(int grade) async {
+    final subjectRows = await (select(subjects)
+          ..where((t) => t.grade.equals(grade)))
+        .get();
+    final subjectIds = subjectRows.map((s) => s.id).toList();
+    if (subjectIds.isEmpty) return;
+    final unitRows =
+        await (select(units)..where((t) => t.subjectId.isIn(subjectIds))).get();
+    final unitIds = unitRows.map((u) => u.id).toList();
+    final lessonRows = unitIds.isEmpty
+        ? <Lesson>[]
+        : await (select(lessons)..where((t) => t.unitId.isIn(unitIds))).get();
+    final lessonIds = lessonRows.map((l) => l.id).toList();
+    final questionRows = lessonIds.isEmpty
+        ? <Question>[]
+        : await (select(questions)..where((t) => t.lessonId.isIn(lessonIds)))
+            .get();
+    final questionIds = questionRows.map((q) => q.id).toList();
+
+    await transaction(() async {
+      if (questionIds.isNotEmpty) {
+        await (delete(quizAnswers)
+              ..where((t) => t.questionId.isIn(questionIds)))
+            .go();
+      }
+      if (lessonIds.isNotEmpty) {
+        await (delete(quizAttempts)..where((t) => t.lessonId.isIn(lessonIds)))
+            .go();
+        await (delete(lessonProgress)
+              ..where((t) => t.lessonId.isIn(lessonIds)))
+            .go();
+        await (delete(favorites)..where((t) => t.lessonId.isIn(lessonIds)))
+            .go();
+        await (delete(understandingChecks)
+              ..where((t) => t.lessonId.isIn(lessonIds)))
+            .go();
+        await (delete(questions)..where((t) => t.lessonId.isIn(lessonIds)))
+            .go();
+        await (delete(lessons)..where((t) => t.id.isIn(lessonIds))).go();
+      }
+      if (unitIds.isNotEmpty) {
+        await (delete(units)..where((t) => t.id.isIn(unitIds))).go();
+      }
+      await (delete(downloads)..where((t) => t.subjectId.isIn(subjectIds)))
+          .go();
+      await (delete(subjects)..where((t) => t.id.isIn(subjectIds))).go();
+    });
+  }
+
   Future<List<Lesson>> lessonsByIds(List<int> ids) {
     if (ids.isEmpty) return Future.value([]);
     return (select(lessons)..where((t) => t.id.isIn(ids))).get();

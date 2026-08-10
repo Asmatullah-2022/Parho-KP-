@@ -179,8 +179,8 @@
   "loading": "لوڈ ہو رہا ہے…",
   "emptyTitle": "ابھی یہاں کچھ نہیں",
   "emptyBody": "مواد دستیاب ہونے پر یہاں ظاہر ہوگا۔",
-  "errorTitle": "کچھ غلط ہو گیا",
-  "errorBody": "براہِ کرم دوبارہ کوشش کریں۔",
+  "errorTitle": "کچھ مسئلہ پیش آیا",
+  "errorBody": "دوبارہ کوشش کریں۔",
 
   "favoritesTitle": "پسندیدہ",
   "favoritesEmpty": "ابھی کوئی پسندیدہ سبق نہیں۔ کسی سبق پر ⭐ دبائیں تاکہ یہاں محفوظ ہو جائے۔",
@@ -213,5 +213,22 @@
   "aiRecReady": "بہت خوب! آپ اگلے سبق کے لیے تیار ہیں۔",
   "aiRecKeepGoing": "جاری رکھیں — آپ اچھا کر رہے ہیں۔",
   "aiVoiceUnavailable": "آواز سے سوال ابھی اس آلے پر دستیاب نہیں۔ براہِ کرم اپنا سوال لکھیں۔",
-  "aiVoiceOutputUnavailable": "اس زبان کی آواز ابھی آپ کے آلے پر نصب نہیں ہے۔"
+  "aiVoiceOutputUnavailable": "اس زبان کی آواز ابھی آپ کے آلے پر نصب نہیں ہے۔",
+
+  "reportTitle": "لرننگ رپورٹ",
+  "reportLessonsCompleted": "مکمل اسباق",
+  "reportQuizAverage": "Quiz اوسط",
+  "reportStrongTopics": "مضبوط مضامین",
+  "reportNeedsPractice": "مزید مشق درکار",
+  "reportRecommended": "تجویز کردہ اگلا سبق",
+  "reportRecentActivity": "حالیہ سرگرمی",
+
+  "teacherSubjectPerformance": "مضامین کی کارکردگی",
+  "teacherNeedingSupport": "مدد کے متلاشی طلبہ",
+  "teacherStudentList": "طلبہ کی فہرست",
+  "teacherWeakAreas": "کمزور شعبہ",
+
+  "offlinePackageSize": "پیکج سائز",
+  "offlineAvailable": "دستیاب",
+  "offlineUpdate": "اپ ڈیٹ"
 }

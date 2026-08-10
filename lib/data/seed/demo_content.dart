@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 
+import '../content/content_importer.dart';
+import '../content/content_models.dart';
 import '../database/app_database.dart';
 
 /// Seeds DEMO Grade-5 content into the database on first launch.
@@ -11,8 +13,12 @@ import '../database/app_database.dart';
 /// curriculum content later — the schema and this seeding entry point are the
 /// only things that need to change.
 const _seedVersionKey = 'seed_version';
-const _seedVersion = '2';
+const _seedVersion = '3';
+
+/// The richly-authored demo grade. Other grades get lighter generated demo
+/// content so the full Grade 1–8 hierarchy is browsable.
 const int demoGrade = 5;
+const List<int> demoGrades = [1, 2, 3, 4, 5, 6, 7, 8];
 
 /// Small trilingual string bundle.
 class T {
@@ -154,7 +160,176 @@ Future<void> seedDemoContentIfNeeded(AppDatabase db) async {
     }
   });
 
+  // Lighter generated demo content for the other grades, imported through the
+  // content pipeline (the same path a JSON/downloaded package would use).
+  final importer = ContentImporter(db);
+  for (final grade in demoGrades) {
+    if (grade == demoGrade) continue;
+    await importer.importPackage(_generatedPackage(grade));
+  }
+
   await db.putSetting(_seedVersionKey, _seedVersion);
+}
+
+// ---------------------------------------------------------------------------
+// Generated demo content for grades other than the rich demo grade.
+// Original, clearly-demo, grade-scaled — not from any copyrighted textbook.
+// ---------------------------------------------------------------------------
+
+ContentPackage _generatedPackage(int grade) {
+  final n = grade; // simple grade-scaled numbers
+  return ContentPackage(
+    grade: grade,
+    subjects: [
+      SubjectSpec(
+        code: 'math',
+        name: const LText('Mathematics', 'ریاضی', 'ریاضي'),
+        emoji: '➕',
+        units: [
+          UnitSpec(
+            title: const LText('Numbers', 'اعداد', 'شمېرې'),
+            lessons: [
+              LessonSpec(
+                title: const LText('Counting Numbers', 'گنتی',
+                    'شمېرل'),
+                objective: LText(
+                  'Children in Grade $grade can count and add small numbers.',
+                  'جماعت $grade کے بچے چھوٹے اعداد گن اور جمع کر سکیں۔',
+                  'د $grade ټولګي ماشومان کوچنۍ شمېرې وشمېري او جمع کړي.',
+                ),
+                explanation: const LText(
+                  'Counting means saying numbers in order: 1, 2, 3, 4… Adding means putting groups together.',
+                  'گنتی کا مطلب اعداد کو ترتیب سے کہنا: 1، 2، 3، 4… جمع کا مطلب گروہوں کو ملانا۔',
+                  'شمېرل یعنې شمېرې په ترتیب ویل: ۱، ۲، ۳، ۴… جمع یعنې ډلې سره یوځای کول.',
+                ),
+                example: LText(
+                  '$n + $n = ${n + n}.',
+                  '$n + $n = ${n + n}۔',
+                  '$n + $n = ${n + n}.',
+                ),
+                illustration: '🔢',
+                questions: [
+                  QuestionSpec(
+                    prompt: LText('What is $n + $n?', '$n + $n کتنا ہے؟',
+                        '$n + $n څومره دی؟'),
+                    options: [
+                      LText('${n + n}', '${n + n}', '${n + n}'),
+                      LText('${n + n + 1}', '${n + n + 1}', '${n + n + 1}'),
+                      LText('${n + 1}', '${n + 1}', '${n + 1}'),
+                      LText('${n * n}', '${n * n}', '${n * n}'),
+                    ],
+                    correctIndex: 0,
+                  ),
+                  QuestionSpec(
+                    prompt: const LText('Which number comes after 4?',
+                        '4 کے بعد کون سا عدد آتا ہے؟',
+                        'د ۴ نه وروسته کومه شمېره راځي؟'),
+                    options: const [
+                      LText('5', '5', '۵'),
+                      LText('3', '3', '۳'),
+                      LText('6', '6', '۶'),
+                      LText('1', '1', '۱'),
+                    ],
+                    correctIndex: 0,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+      SubjectSpec(
+        code: 'science',
+        name: const LText('General Science', 'جنرل سائنس', 'عمومي ساینس'),
+        emoji: '🔬',
+        units: [
+          UnitSpec(
+            title: const LText('Living Things', 'جاندار', 'ژوندي شیان'),
+            lessons: [
+              LessonSpec(
+                title: const LText('Living and Non-living',
+                    'جاندار اور بے جان', 'ژوندي او بې ژوند'),
+                objective: const LText(
+                  'Children can tell living things from non-living things.',
+                  'بچے جاندار اور بے جان میں فرق بتا سکیں۔',
+                  'ماشومان د ژوندیو او بې ژوند توپیر وکړي.',
+                ),
+                explanation: const LText(
+                  'Living things grow, eat and breathe. Non-living things do not.',
+                  'جاندار بڑھتے، کھاتے اور سانس لیتے ہیں۔ بے جان ایسا نہیں کرتے۔',
+                  'ژوندي شیان لویږي، خوري او ساه اخلي. بې ژوند شیان داسې نه کوي.',
+                ),
+                example: const LText(
+                  'A plant is living; a stone is non-living.',
+                  'پودا جاندار ہے؛ پتھر بے جان ہے۔',
+                  'بوټی ژوندی دی؛ تیږه بې ژوند ده.',
+                ),
+                illustration: '🌱',
+                questions: [
+                  QuestionSpec(
+                    prompt: const LText('Which one is living?',
+                        'کون سا جاندار ہے؟', 'کوم یو ژوندی دی؟'),
+                    options: const [
+                      LText('A bird', 'پرندہ', 'مرغه'),
+                      LText('A rock', 'پتھر', 'تیږه'),
+                      LText('A pen', 'قلم', 'قلم'),
+                      LText('A chair', 'کرسی', 'څوکۍ'),
+                    ],
+                    correctIndex: 0,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+      SubjectSpec(
+        code: 'english',
+        name: const LText('English', 'انگریزی', 'انګلیسي'),
+        emoji: '🔤',
+        units: [
+          UnitSpec(
+            title: const LText('Words', 'الفاظ', 'کلمې'),
+            lessons: [
+              LessonSpec(
+                title: const LText('Naming Words (Nouns)', 'نام والے الفاظ',
+                    'د نوم کلمې'),
+                objective: const LText(
+                  'Children can find naming words in a sentence.',
+                  'بچے جملے میں نام والے الفاظ پہچان سکیں۔',
+                  'ماشومان په جمله کې د نوم کلمې وپیژني.',
+                ),
+                explanation: const LText(
+                  'A noun names a person, place, animal or thing.',
+                  'اسم کسی شخص، جگہ، جانور یا چیز کا نام ہے۔',
+                  'نوم د یو کس، ځای، حیوان یا شي نوم دی.',
+                ),
+                example: const LText(
+                  'In "A dog runs", "dog" is a naming word.',
+                  '"A dog runs" میں "dog" نام والا لفظ ہے۔',
+                  'په "A dog runs" کې "dog" د نوم کلمه ده.',
+                ),
+                illustration: '🔤',
+                questions: [
+                  QuestionSpec(
+                    prompt: const LText('Which word is a noun?',
+                        'کون سا لفظ اسم ہے؟', 'کومه کلمه اسم ده؟'),
+                    options: const [
+                      LText('Ball', 'گیند', 'بال'),
+                      LText('Run', 'دوڑنا', 'منډه'),
+                      LText('Big', 'بڑا', 'لوی'),
+                      LText('Fast', 'تیز', 'ګړندی'),
+                    ],
+                    correctIndex: 0,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
 }
 
 // ---------------------------------------------------------------------------
