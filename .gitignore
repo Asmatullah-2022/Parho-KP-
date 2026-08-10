@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local preview rendering (not part of the app)
+.preview_fonts/
+.preview_shots/
