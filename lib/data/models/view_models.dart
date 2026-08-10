@@ -3,6 +3,9 @@ import '../database/app_database.dart';
 /// Learning strength buckets derived from a percentage.
 enum ProgressStatus { strong, improving, needsPractice }
 
+/// Local adaptive-learning recommendation for the current lesson.
+enum AdaptiveRecommendation { review, ready, keepGoing }
+
 ProgressStatus statusFromPercent(int percent) {
   if (percent >= 75) return ProgressStatus.strong;
   if (percent >= 40) return ProgressStatus.improving;

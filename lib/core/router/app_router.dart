@@ -118,7 +118,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.aiTutor,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const AiTutorScreen(),
+        builder: (context, state) => AiTutorScreen(
+          lessonId: int.tryParse(state.uri.queryParameters['lessonId'] ?? ''),
+        ),
       ),
       GoRoute(
         path: Routes.offline,

@@ -4977,6 +4977,713 @@ class AppSettingsRowsCompanion extends UpdateCompanion<AppSettingsRow> {
   }
 }
 
+class $TutorMessagesTable extends TutorMessages
+    with TableInfo<$TutorMessagesTable, TutorMessage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TutorMessagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fromAiMeta = const VerificationMeta('fromAi');
+  @override
+  late final GeneratedColumn<bool> fromAi = GeneratedColumn<bool>(
+    'from_ai',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("from_ai" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    studentId,
+    fromAi,
+    content,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tutor_messages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TutorMessage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('from_ai')) {
+      context.handle(
+        _fromAiMeta,
+        fromAi.isAcceptableOrUnknown(data['from_ai']!, _fromAiMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fromAiMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TutorMessage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TutorMessage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student_id'],
+      )!,
+      fromAi: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}from_ai'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TutorMessagesTable createAlias(String alias) {
+    return $TutorMessagesTable(attachedDatabase, alias);
+  }
+}
+
+class TutorMessage extends DataClass implements Insertable<TutorMessage> {
+  final int id;
+  final int studentId;
+  final bool fromAi;
+  final String content;
+  final DateTime createdAt;
+  const TutorMessage({
+    required this.id,
+    required this.studentId,
+    required this.fromAi,
+    required this.content,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['student_id'] = Variable<int>(studentId);
+    map['from_ai'] = Variable<bool>(fromAi);
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TutorMessagesCompanion toCompanion(bool nullToAbsent) {
+    return TutorMessagesCompanion(
+      id: Value(id),
+      studentId: Value(studentId),
+      fromAi: Value(fromAi),
+      content: Value(content),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TutorMessage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TutorMessage(
+      id: serializer.fromJson<int>(json['id']),
+      studentId: serializer.fromJson<int>(json['studentId']),
+      fromAi: serializer.fromJson<bool>(json['fromAi']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'studentId': serializer.toJson<int>(studentId),
+      'fromAi': serializer.toJson<bool>(fromAi),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TutorMessage copyWith({
+    int? id,
+    int? studentId,
+    bool? fromAi,
+    String? content,
+    DateTime? createdAt,
+  }) => TutorMessage(
+    id: id ?? this.id,
+    studentId: studentId ?? this.studentId,
+    fromAi: fromAi ?? this.fromAi,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  TutorMessage copyWithCompanion(TutorMessagesCompanion data) {
+    return TutorMessage(
+      id: data.id.present ? data.id.value : this.id,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      fromAi: data.fromAi.present ? data.fromAi.value : this.fromAi,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TutorMessage(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('fromAi: $fromAi, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, studentId, fromAi, content, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TutorMessage &&
+          other.id == this.id &&
+          other.studentId == this.studentId &&
+          other.fromAi == this.fromAi &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt);
+}
+
+class TutorMessagesCompanion extends UpdateCompanion<TutorMessage> {
+  final Value<int> id;
+  final Value<int> studentId;
+  final Value<bool> fromAi;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  const TutorMessagesCompanion({
+    this.id = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.fromAi = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  TutorMessagesCompanion.insert({
+    this.id = const Value.absent(),
+    required int studentId,
+    required bool fromAi,
+    required String content,
+    this.createdAt = const Value.absent(),
+  }) : studentId = Value(studentId),
+       fromAi = Value(fromAi),
+       content = Value(content);
+  static Insertable<TutorMessage> custom({
+    Expression<int>? id,
+    Expression<int>? studentId,
+    Expression<bool>? fromAi,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (studentId != null) 'student_id': studentId,
+      if (fromAi != null) 'from_ai': fromAi,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  TutorMessagesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? studentId,
+    Value<bool>? fromAi,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+  }) {
+    return TutorMessagesCompanion(
+      id: id ?? this.id,
+      studentId: studentId ?? this.studentId,
+      fromAi: fromAi ?? this.fromAi,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<int>(studentId.value);
+    }
+    if (fromAi.present) {
+      map['from_ai'] = Variable<bool>(fromAi.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TutorMessagesCompanion(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('fromAi: $fromAi, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UnderstandingChecksTable extends UnderstandingChecks
+    with TableInfo<$UnderstandingChecksTable, UnderstandingCheck> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UnderstandingChecksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lessonIdMeta = const VerificationMeta(
+    'lessonId',
+  );
+  @override
+  late final GeneratedColumn<int> lessonId = GeneratedColumn<int>(
+    'lesson_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isCorrectMeta = const VerificationMeta(
+    'isCorrect',
+  );
+  @override
+  late final GeneratedColumn<bool> isCorrect = GeneratedColumn<bool>(
+    'is_correct',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_correct" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    studentId,
+    lessonId,
+    isCorrect,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'understanding_checks';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UnderstandingCheck> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('lesson_id')) {
+      context.handle(
+        _lessonIdMeta,
+        lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta),
+      );
+    }
+    if (data.containsKey('is_correct')) {
+      context.handle(
+        _isCorrectMeta,
+        isCorrect.isAcceptableOrUnknown(data['is_correct']!, _isCorrectMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isCorrectMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UnderstandingCheck map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UnderstandingCheck(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student_id'],
+      )!,
+      lessonId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lesson_id'],
+      ),
+      isCorrect: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_correct'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UnderstandingChecksTable createAlias(String alias) {
+    return $UnderstandingChecksTable(attachedDatabase, alias);
+  }
+}
+
+class UnderstandingCheck extends DataClass
+    implements Insertable<UnderstandingCheck> {
+  final int id;
+  final int studentId;
+  final int? lessonId;
+  final bool isCorrect;
+  final DateTime createdAt;
+  const UnderstandingCheck({
+    required this.id,
+    required this.studentId,
+    this.lessonId,
+    required this.isCorrect,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['student_id'] = Variable<int>(studentId);
+    if (!nullToAbsent || lessonId != null) {
+      map['lesson_id'] = Variable<int>(lessonId);
+    }
+    map['is_correct'] = Variable<bool>(isCorrect);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  UnderstandingChecksCompanion toCompanion(bool nullToAbsent) {
+    return UnderstandingChecksCompanion(
+      id: Value(id),
+      studentId: Value(studentId),
+      lessonId: lessonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lessonId),
+      isCorrect: Value(isCorrect),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory UnderstandingCheck.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UnderstandingCheck(
+      id: serializer.fromJson<int>(json['id']),
+      studentId: serializer.fromJson<int>(json['studentId']),
+      lessonId: serializer.fromJson<int?>(json['lessonId']),
+      isCorrect: serializer.fromJson<bool>(json['isCorrect']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'studentId': serializer.toJson<int>(studentId),
+      'lessonId': serializer.toJson<int?>(lessonId),
+      'isCorrect': serializer.toJson<bool>(isCorrect),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  UnderstandingCheck copyWith({
+    int? id,
+    int? studentId,
+    Value<int?> lessonId = const Value.absent(),
+    bool? isCorrect,
+    DateTime? createdAt,
+  }) => UnderstandingCheck(
+    id: id ?? this.id,
+    studentId: studentId ?? this.studentId,
+    lessonId: lessonId.present ? lessonId.value : this.lessonId,
+    isCorrect: isCorrect ?? this.isCorrect,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  UnderstandingCheck copyWithCompanion(UnderstandingChecksCompanion data) {
+    return UnderstandingCheck(
+      id: data.id.present ? data.id.value : this.id,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      isCorrect: data.isCorrect.present ? data.isCorrect.value : this.isCorrect,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnderstandingCheck(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('isCorrect: $isCorrect, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, studentId, lessonId, isCorrect, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UnderstandingCheck &&
+          other.id == this.id &&
+          other.studentId == this.studentId &&
+          other.lessonId == this.lessonId &&
+          other.isCorrect == this.isCorrect &&
+          other.createdAt == this.createdAt);
+}
+
+class UnderstandingChecksCompanion extends UpdateCompanion<UnderstandingCheck> {
+  final Value<int> id;
+  final Value<int> studentId;
+  final Value<int?> lessonId;
+  final Value<bool> isCorrect;
+  final Value<DateTime> createdAt;
+  const UnderstandingChecksCompanion({
+    this.id = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.lessonId = const Value.absent(),
+    this.isCorrect = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  UnderstandingChecksCompanion.insert({
+    this.id = const Value.absent(),
+    required int studentId,
+    this.lessonId = const Value.absent(),
+    required bool isCorrect,
+    this.createdAt = const Value.absent(),
+  }) : studentId = Value(studentId),
+       isCorrect = Value(isCorrect);
+  static Insertable<UnderstandingCheck> custom({
+    Expression<int>? id,
+    Expression<int>? studentId,
+    Expression<int>? lessonId,
+    Expression<bool>? isCorrect,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (studentId != null) 'student_id': studentId,
+      if (lessonId != null) 'lesson_id': lessonId,
+      if (isCorrect != null) 'is_correct': isCorrect,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  UnderstandingChecksCompanion copyWith({
+    Value<int>? id,
+    Value<int>? studentId,
+    Value<int?>? lessonId,
+    Value<bool>? isCorrect,
+    Value<DateTime>? createdAt,
+  }) {
+    return UnderstandingChecksCompanion(
+      id: id ?? this.id,
+      studentId: studentId ?? this.studentId,
+      lessonId: lessonId ?? this.lessonId,
+      isCorrect: isCorrect ?? this.isCorrect,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<int>(studentId.value);
+    }
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<int>(lessonId.value);
+    }
+    if (isCorrect.present) {
+      map['is_correct'] = Variable<bool>(isCorrect.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UnderstandingChecksCompanion(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('isCorrect: $isCorrect, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4993,6 +5700,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AppSettingsRowsTable appSettingsRows = $AppSettingsRowsTable(
     this,
   );
+  late final $TutorMessagesTable tutorMessages = $TutorMessagesTable(this);
+  late final $UnderstandingChecksTable understandingChecks =
+      $UnderstandingChecksTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5009,6 +5719,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     downloads,
     favorites,
     appSettingsRows,
+    tutorMessages,
+    understandingChecks,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -10101,6 +10813,410 @@ typedef $$AppSettingsRowsTableProcessedTableManager =
       AppSettingsRow,
       PrefetchHooks Function()
     >;
+typedef $$TutorMessagesTableCreateCompanionBuilder =
+    TutorMessagesCompanion Function({
+      Value<int> id,
+      required int studentId,
+      required bool fromAi,
+      required String content,
+      Value<DateTime> createdAt,
+    });
+typedef $$TutorMessagesTableUpdateCompanionBuilder =
+    TutorMessagesCompanion Function({
+      Value<int> id,
+      Value<int> studentId,
+      Value<bool> fromAi,
+      Value<String> content,
+      Value<DateTime> createdAt,
+    });
+
+class $$TutorMessagesTableFilterComposer
+    extends Composer<_$AppDatabase, $TutorMessagesTable> {
+  $$TutorMessagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get fromAi => $composableBuilder(
+    column: $table.fromAi,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TutorMessagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TutorMessagesTable> {
+  $$TutorMessagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get fromAi => $composableBuilder(
+    column: $table.fromAi,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TutorMessagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TutorMessagesTable> {
+  $$TutorMessagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<bool> get fromAi =>
+      $composableBuilder(column: $table.fromAi, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$TutorMessagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TutorMessagesTable,
+          TutorMessage,
+          $$TutorMessagesTableFilterComposer,
+          $$TutorMessagesTableOrderingComposer,
+          $$TutorMessagesTableAnnotationComposer,
+          $$TutorMessagesTableCreateCompanionBuilder,
+          $$TutorMessagesTableUpdateCompanionBuilder,
+          (
+            TutorMessage,
+            BaseReferences<_$AppDatabase, $TutorMessagesTable, TutorMessage>,
+          ),
+          TutorMessage,
+          PrefetchHooks Function()
+        > {
+  $$TutorMessagesTableTableManager(_$AppDatabase db, $TutorMessagesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TutorMessagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TutorMessagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TutorMessagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> studentId = const Value.absent(),
+                Value<bool> fromAi = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TutorMessagesCompanion(
+                id: id,
+                studentId: studentId,
+                fromAi: fromAi,
+                content: content,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int studentId,
+                required bool fromAi,
+                required String content,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => TutorMessagesCompanion.insert(
+                id: id,
+                studentId: studentId,
+                fromAi: fromAi,
+                content: content,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TutorMessagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TutorMessagesTable,
+      TutorMessage,
+      $$TutorMessagesTableFilterComposer,
+      $$TutorMessagesTableOrderingComposer,
+      $$TutorMessagesTableAnnotationComposer,
+      $$TutorMessagesTableCreateCompanionBuilder,
+      $$TutorMessagesTableUpdateCompanionBuilder,
+      (
+        TutorMessage,
+        BaseReferences<_$AppDatabase, $TutorMessagesTable, TutorMessage>,
+      ),
+      TutorMessage,
+      PrefetchHooks Function()
+    >;
+typedef $$UnderstandingChecksTableCreateCompanionBuilder =
+    UnderstandingChecksCompanion Function({
+      Value<int> id,
+      required int studentId,
+      Value<int?> lessonId,
+      required bool isCorrect,
+      Value<DateTime> createdAt,
+    });
+typedef $$UnderstandingChecksTableUpdateCompanionBuilder =
+    UnderstandingChecksCompanion Function({
+      Value<int> id,
+      Value<int> studentId,
+      Value<int?> lessonId,
+      Value<bool> isCorrect,
+      Value<DateTime> createdAt,
+    });
+
+class $$UnderstandingChecksTableFilterComposer
+    extends Composer<_$AppDatabase, $UnderstandingChecksTable> {
+  $$UnderstandingChecksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lessonId => $composableBuilder(
+    column: $table.lessonId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCorrect => $composableBuilder(
+    column: $table.isCorrect,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$UnderstandingChecksTableOrderingComposer
+    extends Composer<_$AppDatabase, $UnderstandingChecksTable> {
+  $$UnderstandingChecksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lessonId => $composableBuilder(
+    column: $table.lessonId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCorrect => $composableBuilder(
+    column: $table.isCorrect,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$UnderstandingChecksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UnderstandingChecksTable> {
+  $$UnderstandingChecksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<int> get lessonId =>
+      $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCorrect =>
+      $composableBuilder(column: $table.isCorrect, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$UnderstandingChecksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UnderstandingChecksTable,
+          UnderstandingCheck,
+          $$UnderstandingChecksTableFilterComposer,
+          $$UnderstandingChecksTableOrderingComposer,
+          $$UnderstandingChecksTableAnnotationComposer,
+          $$UnderstandingChecksTableCreateCompanionBuilder,
+          $$UnderstandingChecksTableUpdateCompanionBuilder,
+          (
+            UnderstandingCheck,
+            BaseReferences<
+              _$AppDatabase,
+              $UnderstandingChecksTable,
+              UnderstandingCheck
+            >,
+          ),
+          UnderstandingCheck,
+          PrefetchHooks Function()
+        > {
+  $$UnderstandingChecksTableTableManager(
+    _$AppDatabase db,
+    $UnderstandingChecksTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UnderstandingChecksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UnderstandingChecksTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$UnderstandingChecksTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> studentId = const Value.absent(),
+                Value<int?> lessonId = const Value.absent(),
+                Value<bool> isCorrect = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => UnderstandingChecksCompanion(
+                id: id,
+                studentId: studentId,
+                lessonId: lessonId,
+                isCorrect: isCorrect,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int studentId,
+                Value<int?> lessonId = const Value.absent(),
+                required bool isCorrect,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => UnderstandingChecksCompanion.insert(
+                id: id,
+                studentId: studentId,
+                lessonId: lessonId,
+                isCorrect: isCorrect,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$UnderstandingChecksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UnderstandingChecksTable,
+      UnderstandingCheck,
+      $$UnderstandingChecksTableFilterComposer,
+      $$UnderstandingChecksTableOrderingComposer,
+      $$UnderstandingChecksTableAnnotationComposer,
+      $$UnderstandingChecksTableCreateCompanionBuilder,
+      $$UnderstandingChecksTableUpdateCompanionBuilder,
+      (
+        UnderstandingCheck,
+        BaseReferences<
+          _$AppDatabase,
+          $UnderstandingChecksTable,
+          UnderstandingCheck
+        >,
+      ),
+      UnderstandingCheck,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10127,4 +11243,8 @@ class $AppDatabaseManager {
       $$FavoritesTableTableManager(_db, _db.favorites);
   $$AppSettingsRowsTableTableManager get appSettingsRows =>
       $$AppSettingsRowsTableTableManager(_db, _db.appSettingsRows);
+  $$TutorMessagesTableTableManager get tutorMessages =>
+      $$TutorMessagesTableTableManager(_db, _db.tutorMessages);
+  $$UnderstandingChecksTableTableManager get understandingChecks =>
+      $$UnderstandingChecksTableTableManager(_db, _db.understandingChecks);
 }

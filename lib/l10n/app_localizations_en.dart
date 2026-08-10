@@ -536,5 +536,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileUpdated => 'Profile updated';
 
   @override
-  String get aiEasyExample => 'Give an easy example';
+  String get aiEasyExample => 'Give me an example';
+
+  @override
+  String get aiOfflineTitle => 'Offline AI Tutor';
+
+  @override
+  String get aiOfflineHelp => 'Basic learning help is available offline.';
+
+  @override
+  String get aiClear => 'Clear conversation';
+
+  @override
+  String get aiExplainSimply => 'Explain simply';
+
+  @override
+  String get aiExplainForClass => 'Explain for my class';
+
+  @override
+  String get aiAskQuestion => 'Ask me a question';
+
+  @override
+  String get aiTestUnderstanding => 'Test my understanding';
+
+  @override
+  String get aiExplainAnother => 'Explain another way';
+
+  @override
+  String get aiTranslate => 'Translate explanation';
+
+  @override
+  String get aiCorrect => 'Correct ✓  Well done!';
+
+  @override
+  String get aiTryAgain => 'Not quite — let\'s try again.';
+
+  @override
+  String get aiRecReview => 'Let\'s review this topic again.';
+
+  @override
+  String get aiRecReady => 'Great! You are ready for the next lesson.';
+
+  @override
+  String get aiRecKeepGoing => 'Keep going — you\'re doing well.';
+
+  @override
+  String get aiVoiceUnavailable =>
+      'Voice input isn\'t available on this device yet. Please type your question.';
+
+  @override
+  String get aiVoiceOutputUnavailable =>
+      'This language\'s voice isn\'t installed on your device yet.';
 }

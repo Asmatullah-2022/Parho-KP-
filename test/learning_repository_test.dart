@@ -217,6 +217,45 @@ void main() {
     expect(updated.languageCode, 'ur');
   });
 
+  test('tutor chat history is stored, listed and cleared', () async {
+    final student =
+        await repo.createStudent(name: 'Zeb', grade: 5, languageCode: 'ur');
+    await repo.saveTutorMessage(student, false, 'مجھے fractions سمجھ نہیں آ رہے۔');
+    await repo.saveTutorMessage(student, true, 'کوئی بات نہیں…');
+
+    final history = await repo.recentTutorMessages(student);
+    expect(history.length, 2);
+    expect(history.first.fromAi, isFalse);
+    expect(history.last.fromAi, isTrue);
+
+    await repo.clearTutorMessages(student);
+    expect(await repo.recentTutorMessages(student), isEmpty);
+  });
+
+  test('adaptive recommendation reacts to understanding results', () async {
+    final student =
+        await repo.createStudent(name: 'Noor', grade: 5, languageCode: 'en');
+    final lesson = (await db.allLessons()).first;
+
+    // No signals yet.
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.keepGoing);
+
+    // Repeated mistakes → review.
+    await repo.saveUnderstandingCheck(student, lesson.id, false);
+    await repo.saveUnderstandingCheck(student, lesson.id, false);
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.review);
+
+    // Then several correct → ready.
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.ready);
+  });
+
   test('status buckets map percentages correctly', () {
     expect(statusFromPercent(80), ProgressStatus.strong);
     expect(statusFromPercent(50), ProgressStatus.improving);

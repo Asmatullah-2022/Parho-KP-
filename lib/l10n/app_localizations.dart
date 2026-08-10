@@ -1099,8 +1099,104 @@ abstract class AppLocalizations {
   /// No description provided for @aiEasyExample.
   ///
   /// In en, this message translates to:
-  /// **'Give an easy example'**
+  /// **'Give me an example'**
   String get aiEasyExample;
+
+  /// No description provided for @aiOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline AI Tutor'**
+  String get aiOfflineTitle;
+
+  /// No description provided for @aiOfflineHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic learning help is available offline.'**
+  String get aiOfflineHelp;
+
+  /// No description provided for @aiClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear conversation'**
+  String get aiClear;
+
+  /// No description provided for @aiExplainSimply.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain simply'**
+  String get aiExplainSimply;
+
+  /// No description provided for @aiExplainForClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain for my class'**
+  String get aiExplainForClass;
+
+  /// No description provided for @aiAskQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask me a question'**
+  String get aiAskQuestion;
+
+  /// No description provided for @aiTestUnderstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Test my understanding'**
+  String get aiTestUnderstanding;
+
+  /// No description provided for @aiExplainAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain another way'**
+  String get aiExplainAnother;
+
+  /// No description provided for @aiTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate explanation'**
+  String get aiTranslate;
+
+  /// No description provided for @aiCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct ✓  Well done!'**
+  String get aiCorrect;
+
+  /// No description provided for @aiTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Not quite — let\'s try again.'**
+  String get aiTryAgain;
+
+  /// No description provided for @aiRecReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s review this topic again.'**
+  String get aiRecReview;
+
+  /// No description provided for @aiRecReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Great! You are ready for the next lesson.'**
+  String get aiRecReady;
+
+  /// No description provided for @aiRecKeepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going — you\'re doing well.'**
+  String get aiRecKeepGoing;
+
+  /// No description provided for @aiVoiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice input isn\'t available on this device yet. Please type your question.'**
+  String get aiVoiceUnavailable;
+
+  /// No description provided for @aiVoiceOutputUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This language\'s voice isn\'t installed on your device yet.'**
+  String get aiVoiceOutputUnavailable;
 }
 
 class _AppLocalizationsDelegate

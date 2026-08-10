@@ -196,5 +196,22 @@
   "editProfileTitle": "پروفائل میں تبدیلی",
   "profileUpdated": "پروفائل اپ ڈیٹ ہو گیا",
 
-  "aiEasyExample": "آسان مثال دیں"
+  "aiEasyExample": "مجھے مثال دیں",
+
+  "aiOfflineTitle": "آف لائن AI Tutor",
+  "aiOfflineHelp": "بنیادی تعلیمی مدد آف لائن دستیاب ہے۔",
+  "aiClear": "گفتگو صاف کریں",
+  "aiExplainSimply": "آسان الفاظ میں سمجھائیں",
+  "aiExplainForClass": "میری جماعت کے مطابق سمجھائیں",
+  "aiAskQuestion": "مجھ سے سوال پوچھیں",
+  "aiTestUnderstanding": "میری سمجھ جانچیں",
+  "aiExplainAnother": "کسی اور طریقے سے سمجھائیں",
+  "aiTranslate": "ترجمہ کر کے سمجھائیں",
+  "aiCorrect": "درست ✓  شاباش!",
+  "aiTryAgain": "بالکل نہیں — آئیے دوبارہ کوشش کریں۔",
+  "aiRecReview": "آئیے اس موضوع کو دوبارہ دہراتے ہیں۔",
+  "aiRecReady": "بہت خوب! آپ اگلے سبق کے لیے تیار ہیں۔",
+  "aiRecKeepGoing": "جاری رکھیں — آپ اچھا کر رہے ہیں۔",
+  "aiVoiceUnavailable": "آواز سے سوال ابھی اس آلے پر دستیاب نہیں۔ براہِ کرم اپنا سوال لکھیں۔",
+  "aiVoiceOutputUnavailable": "اس زبان کی آواز ابھی آپ کے آلے پر نصب نہیں ہے۔"
 }

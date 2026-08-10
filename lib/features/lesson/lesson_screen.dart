@@ -191,6 +191,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       isScrollControlled: true,
       builder: (context) {
         return _HelpSheet(
+          lessonId: widget.lessonId,
           title: title,
           explanation: explanation,
           example: example,
@@ -308,6 +309,7 @@ class _IllustrationCard extends StatelessWidget {
 /// AI Tutor without pretending to replace a teacher.
 class _HelpSheet extends ConsumerWidget {
   const _HelpSheet({
+    required this.lessonId,
     required this.title,
     required this.explanation,
     required this.example,
@@ -315,6 +317,7 @@ class _HelpSheet extends ConsumerWidget {
     required this.l10n,
   });
 
+  final int lessonId;
   final String title;
   final String explanation;
   final String example;
@@ -379,7 +382,7 @@ class _HelpSheet extends ConsumerWidget {
                   icon: Icons.smart_toy_rounded,
                   onPressed: () {
                     Navigator.of(context).pop();
-                    context.push(Routes.aiTutor);
+                    context.push(Routes.aiTutorPath(lessonId: lessonId));
                   },
                 ),
               ),

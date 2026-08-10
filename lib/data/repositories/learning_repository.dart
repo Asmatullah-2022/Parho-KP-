@@ -281,6 +281,53 @@ class LearningRepository {
     return result;
   }
 
+  // ---- AI tutor: chat history --------------------------------------------
+
+  Future<void> saveTutorMessage(int studentId, bool fromAi, String content) =>
+      db.insertTutorMessage(
+          studentId: studentId, fromAi: fromAi, content: content);
+
+  Future<List<TutorMessage>> recentTutorMessages(int studentId) =>
+      db.recentTutorMessages(studentId);
+
+  Future<void> clearTutorMessages(int studentId) =>
+      db.clearTutorMessages(studentId);
+
+  // ---- AI tutor: understanding checks + adaptive learning ----------------
+
+  Future<void> saveUnderstandingCheck(
+    int studentId,
+    int? lessonId,
+    bool isCorrect,
+  ) =>
+      db.insertUnderstandingCheck(
+          studentId: studentId, lessonId: lessonId, isCorrect: isCorrect);
+
+  /// A simple local adaptive signal for a lesson, from understanding checks and
+  /// the latest quiz score. Repeated mistakes → review; strong results → ready.
+  Future<AdaptiveRecommendation> adaptiveRecommendation(
+      int studentId, int lessonId) async {
+    final checks = await db.understandingChecksForLesson(studentId, lessonId);
+    var correct = checks.where((c) => c.isCorrect).length;
+    var wrong = checks.length - correct;
+
+    // Fold in the most recent quiz attempt for this lesson, if any.
+    final attempts = (await db.attemptsForStudent(studentId))
+        .where((a) => a.lessonId == lessonId)
+        .toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    if (attempts.isNotEmpty) {
+      final a = attempts.first;
+      correct += a.score;
+      wrong += (a.total - a.score);
+    }
+
+    if (correct + wrong == 0) return AdaptiveRecommendation.keepGoing;
+    if (wrong >= 2 && wrong >= correct) return AdaptiveRecommendation.review;
+    if (correct >= 2 && correct > wrong) return AdaptiveRecommendation.ready;
+    return AdaptiveRecommendation.keepGoing;
+  }
+
   // ---- search ------------------------------------------------------------
 
   /// Offline search over all lessons in the student's grade. Matches the query

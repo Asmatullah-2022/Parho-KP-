@@ -535,5 +535,55 @@ class AppLocalizationsPs extends AppLocalizations {
   String get profileUpdated => 'پروفایل تازه شو';
 
   @override
-  String get aiEasyExample => 'ساده مثال راکړئ';
+  String get aiEasyExample => 'ماته مثال راکړئ';
+
+  @override
+  String get aiOfflineTitle => 'آفلاین AI Tutor';
+
+  @override
+  String get aiOfflineHelp => 'بنسټیزه زده‌کړې مرسته آفلاین شتون لري.';
+
+  @override
+  String get aiClear => 'خبرې پاکې کړئ';
+
+  @override
+  String get aiExplainSimply => 'په ساده ټکو کې تشریح کړئ';
+
+  @override
+  String get aiExplainForClass => 'زما د ټولګي سره سم تشریح کړئ';
+
+  @override
+  String get aiAskQuestion => 'له ما پوښتنه وکړئ';
+
+  @override
+  String get aiTestUnderstanding => 'زما پوهه وازمویئ';
+
+  @override
+  String get aiExplainAnother => 'په بله بڼه تشریح کړئ';
+
+  @override
+  String get aiTranslate => 'ژباړه کړئ او تشریح یې کړئ';
+
+  @override
+  String get aiCorrect => 'سم ✓  آفرین!';
+
+  @override
+  String get aiTryAgain => 'بشپړ نه — راځئ بیا هڅه وکړو.';
+
+  @override
+  String get aiRecReview => 'راځئ دا موضوع بیا تکرار کړو.';
+
+  @override
+  String get aiRecReady => 'ډېر ښه! تاسو د بل درس لپاره چمتو یاست.';
+
+  @override
+  String get aiRecKeepGoing => 'دوام ورکړئ — تاسو ښه کوئ.';
+
+  @override
+  String get aiVoiceUnavailable =>
+      'غږیزه پوښتنه لا تر اوسه پدې وسیله شتون نلري. مهرباني وکړئ خپله پوښتنه ولیکئ.';
+
+  @override
+  String get aiVoiceOutputUnavailable =>
+      'د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی.';
 }

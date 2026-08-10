@@ -161,6 +161,24 @@ class AppSettingsRows extends Table {
   Set<Column> get primaryKey => {settingKey};
 }
 
+/// Recent AI Tutor conversation messages (chat history), stored on-device.
+class TutorMessages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get studentId => integer()();
+  BoolColumn get fromAi => boolean()();
+  TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Results of "Test My Understanding" checks — a local adaptive-learning signal.
+class UnderstandingChecks extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get studentId => integer()();
+  IntColumn get lessonId => integer().nullable()();
+  BoolColumn get isCorrect => boolean()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 // ---------------------------------------------------------------------------
 // Database
 // ---------------------------------------------------------------------------
@@ -178,6 +196,8 @@ class AppSettingsRows extends Table {
     Downloads,
     Favorites,
     AppSettingsRows,
+    TutorMessages,
+    UnderstandingChecks,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -187,7 +207,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(tutorMessages);
+            await m.createTable(understandingChecks);
+          }
+        },
+      );
 
   // ---- key/value helpers -------------------------------------------------
 
@@ -434,6 +465,61 @@ class AppDatabase extends _$AppDatabase {
       FavoritesCompanion.insert(studentId: studentId, lessonId: lessonId),
     );
     return true;
+  }
+
+  // ---- tutor chat history ------------------------------------------------
+
+  Future<void> insertTutorMessage({
+    required int studentId,
+    required bool fromAi,
+    required String content,
+  }) {
+    return into(tutorMessages).insert(
+      TutorMessagesCompanion.insert(
+        studentId: studentId,
+        fromAi: fromAi,
+        content: content,
+      ),
+    );
+  }
+
+  Future<List<TutorMessage>> recentTutorMessages(int studentId,
+      {int limit = 100}) async {
+    final rows = await (select(tutorMessages)
+          ..where((t) => t.studentId.equals(studentId))
+          ..orderBy([(t) => OrderingTerm(expression: t.id)])
+          ..limit(limit))
+        .get();
+    return rows;
+  }
+
+  Future<void> clearTutorMessages(int studentId) {
+    return (delete(tutorMessages)..where((t) => t.studentId.equals(studentId)))
+        .go();
+  }
+
+  // ---- understanding checks (adaptive signals) ---------------------------
+
+  Future<void> insertUnderstandingCheck({
+    required int studentId,
+    int? lessonId,
+    required bool isCorrect,
+  }) {
+    return into(understandingChecks).insert(
+      UnderstandingChecksCompanion.insert(
+        studentId: studentId,
+        lessonId: Value(lessonId),
+        isCorrect: isCorrect,
+      ),
+    );
+  }
+
+  Future<List<UnderstandingCheck>> understandingChecksForLesson(
+      int studentId, int lessonId) {
+    return (select(understandingChecks)
+          ..where((t) =>
+              t.studentId.equals(studentId) & t.lessonId.equals(lessonId)))
+        .get();
   }
 
   // ---- student -----------------------------------------------------------
