@@ -2,13 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
-/// Maps app language codes to TTS locale hints. Availability depends on the
-/// device's installed voices; we fail gracefully when a voice is missing.
-const _ttsLocales = {
-  'en': 'en-US',
-  'ur': 'ur-PK',
-  'ps': 'ps-AF',
-};
+import 'voice_language_support.dart';
 
 /// Reads text aloud (voice output). Abstracted so the implementation can change
 /// without touching callers, and so a language's availability can be checked to
@@ -47,7 +41,7 @@ class TtsService implements TextToSpeechService {
   Future<void> speak(String text, {String languageCode = 'en'}) async {
     if (!_ready || text.trim().isEmpty) return;
     try {
-      final locale = _ttsLocales[languageCode] ?? 'en-US';
+      final locale = VoiceLanguageSupport.localeHint(languageCode);
       await _tts.stop();
       await _tts.setLanguage(locale);
       await _tts.speak(text);
@@ -61,7 +55,7 @@ class TtsService implements TextToSpeechService {
   @override
   Future<bool> isLanguageAvailable(String languageCode) async {
     try {
-      final locale = _ttsLocales[languageCode] ?? 'en-US';
+      final locale = VoiceLanguageSupport.localeHint(languageCode);
       final result = await _tts.isLanguageAvailable(locale);
       return result == true || result == 1;
     } catch (_) {

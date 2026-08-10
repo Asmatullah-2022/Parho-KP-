@@ -75,6 +75,9 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
       if (data != null) {
         final lessonTitle = pickLang(code, data.lesson.titleEn,
             data.lesson.titleUr, data.lesson.titlePs);
+        final recentPercent = student == null
+            ? null
+            : await repo.latestQuizPercent(student.id, data.lesson.id);
         ctx = TutorContext(
           studentName: student?.name ?? '',
           grade: student?.grade ?? 5,
@@ -88,6 +91,7 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
           objective: pickLang(code, data.lesson.objectiveEn,
               data.lesson.objectiveUr, data.lesson.objectivePs),
           topic: lessonTitle,
+          recentQuizPercent: recentPercent,
         );
       }
     }

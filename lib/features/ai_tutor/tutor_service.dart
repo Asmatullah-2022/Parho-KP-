@@ -45,15 +45,18 @@ class MockTutorService implements TutorService {
         return TutorReply(text: MockTutor.reply(request.message, code, grade: grade));
 
       case TutorIntent.explainLesson:
+        final note = MockTutor.performanceNote(code, ctx.recentQuizPercent);
         return TutorReply(
-            text: MockTutor.explainLesson(code, context: ctx, grade: grade));
+            text: MockTutor.explainLesson(code, context: ctx, grade: grade) +
+                note);
 
       case TutorIntent.iDontUnderstand:
         final lead = _encourage(code);
         final body = topic == null
             ? MockTutor.explainLesson(code, context: ctx, grade: grade)
             : MockTutor.explain(topic, grade, code);
-        return TutorReply(text: '$lead$body');
+        final note = MockTutor.performanceNote(code, ctx.recentQuizPercent);
+        return TutorReply(text: '$lead$body$note');
 
       case TutorIntent.explainSimply:
         final body = topic == null
@@ -115,19 +118,41 @@ class MockTutorService implements TutorService {
       };
 }
 
-/// Placeholder for a future online AI provider. NOT connected yet — it throws
-/// so callers fall back to the mock. When implemented it must call a backend
-/// that keeps the API key server-side (never in the app).
-class FutureRemoteTutorService implements TutorService {
-  const FutureRemoteTutorService();
+/// Production-shaped remote tutor.
+///
+/// The intended architecture is:  Flutter App → Secure Backend → AI Provider.
+/// This class calls YOUR backend ([backendUrl]); the backend holds the AI
+/// provider's API key. **No API key is ever stored in the app.** Until a
+/// backend URL is configured it reports "not connected" so callers fall back
+/// to [MockTutorService] and the app keeps working offline.
+class RemoteTutorService implements TutorService {
+  const RemoteTutorService({this.backendUrl});
+
+  /// URL of your secure backend endpoint. When null, the service is disabled.
+  final String? backendUrl;
+
+  bool get isConfigured => backendUrl != null && backendUrl!.isNotEmpty;
 
   @override
   Future<TutorReply> respond(TutorRequest request) async {
-    throw StateError('Remote tutor is not connected yet.');
+    if (!isConfigured) {
+      throw StateError('Remote tutor backend is not configured.');
+    }
+    // A real implementation would POST the request (grade, language, subject,
+    // lesson, topic, message) to `backendUrl` and parse the reply. Intentionally
+    // not implemented here — no paid AI API is connected in this build.
+    throw UnimplementedError('Remote tutor backend call is not implemented.');
   }
 }
 
+/// Back-compat alias for the remote service (kept so existing references and
+/// tests continue to work).
+class FutureRemoteTutorService extends RemoteTutorService {
+  const FutureRemoteTutorService() : super();
+}
+
 /// The tutor service the app uses today (mock, offline). Swap this override for
-/// a remote-backed service in the future — no UI changes required.
+/// a [RemoteTutorService] pointed at your secure backend in the future — no UI
+/// changes required.
 final tutorServiceProvider =
     Provider<TutorService>((ref) => const MockTutorService());

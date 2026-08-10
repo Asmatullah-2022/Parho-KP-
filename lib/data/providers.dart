@@ -126,5 +126,13 @@ final searchResultsProvider =
   return repo.searchLessons(student.grade, query);
 });
 
+/// Full learning report for the current student.
+final studentReportProvider = FutureProvider<StudentReport?>((ref) async {
+  final repo = ref.watch(learningRepositoryProvider);
+  final student = await ref.watch(currentStudentProvider.future);
+  if (student == null) return null;
+  return repo.buildStudentReport(student);
+});
+
 /// Bumped to force dependent providers to refetch after a write.
 final refreshTickProvider = StateProvider<int>((ref) => 0);

@@ -250,6 +250,19 @@ void main() {
     expect(find.text('About'), findsOneWidget);
   });
 
+  testWidgets('Pashto renders RTL on the Home dashboard (no crash)',
+      (tester) async {
+    await tester.pumpWidget(
+        await _buildApp(_authedPrefs(language: 'ps'), withStudent: true));
+    await _settleSplash(tester);
+    // Home content is shown and laid out RTL for Pashto ("What to study today?").
+    await _waitFor(tester, find.text('نن څه ولولو؟'));
+    expect(find.text('نن څه ولولو؟'), findsOneWidget);
+    final dir =
+        Directionality.of(tester.element(find.text('نن څه ولولو؟').first));
+    expect(dir, TextDirection.rtl);
+  });
+
   testWidgets('Offline search and Favorites screens work', (tester) async {
     await tester.pumpWidget(
         await _buildApp(_authedPrefs(), withStudent: true));

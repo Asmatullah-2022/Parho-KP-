@@ -19,6 +19,13 @@ abstract final class Routes {
   static const teacher = '/teacher';
   static const favorites = '/favorites';
   static const search = '/search';
+  static const report = '/report';
+  static const teacherClass = '/teacher/class'; // /teacher/class/:id
+  static const teacherStudent = '/teacher/student'; // /teacher/student/:id
+
+  static String teacherClassPath(int id) => '$teacherClass/$id';
+  static String teacherStudentPath(int classId, int index) =>
+      '$teacherStudent/$classId?i=$index';
 
   static String subjectPath(int id) => '$subject/$id';
   static String lessonPath(int id) => '$lesson/$id';

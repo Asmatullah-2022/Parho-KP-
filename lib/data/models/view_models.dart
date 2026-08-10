@@ -62,6 +62,47 @@ class ContinueTarget {
   final int percent;
 }
 
+/// A recent activity entry for the student report.
+class ActivityEntry {
+  const ActivityEntry({
+    required this.title,
+    required this.detail,
+    required this.when,
+  });
+  final String title;
+  final String detail;
+  final DateTime when;
+}
+
+/// A full learning report for one student.
+class StudentReport {
+  const StudentReport({
+    required this.student,
+    required this.overallPercent,
+    required this.subjects,
+    required this.lessonsCompleted,
+    required this.totalLessons,
+    required this.quizAveragePercent,
+    required this.quizzesTaken,
+    required this.strong,
+    required this.needsPractice,
+    required this.recentActivity,
+    required this.nextLesson,
+  });
+
+  final Student student;
+  final int overallPercent;
+  final List<SubjectProgress> subjects;
+  final int lessonsCompleted;
+  final int totalLessons;
+  final int quizAveragePercent;
+  final int quizzesTaken;
+  final List<SubjectProgress> strong;
+  final List<SubjectProgress> needsPractice;
+  final List<ActivityEntry> recentActivity;
+  final ContinueTarget? nextLesson;
+}
+
 /// A subject's offline-download state.
 class DownloadState {
   const DownloadState({

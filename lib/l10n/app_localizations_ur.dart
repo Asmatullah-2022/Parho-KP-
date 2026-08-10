@@ -496,10 +496,10 @@ class AppLocalizationsUr extends AppLocalizations {
   String get emptyBody => 'مواد دستیاب ہونے پر یہاں ظاہر ہوگا۔';
 
   @override
-  String get errorTitle => 'کچھ غلط ہو گیا';
+  String get errorTitle => 'کچھ مسئلہ پیش آیا';
 
   @override
-  String get errorBody => 'براہِ کرم دوبارہ کوشش کریں۔';
+  String get errorBody => 'دوبارہ کوشش کریں۔';
 
   @override
   String get favoritesTitle => 'پسندیدہ';
@@ -588,4 +588,46 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get aiVoiceOutputUnavailable =>
       'اس زبان کی آواز ابھی آپ کے آلے پر نصب نہیں ہے۔';
+
+  @override
+  String get reportTitle => 'لرننگ رپورٹ';
+
+  @override
+  String get reportLessonsCompleted => 'مکمل اسباق';
+
+  @override
+  String get reportQuizAverage => 'Quiz اوسط';
+
+  @override
+  String get reportStrongTopics => 'مضبوط مضامین';
+
+  @override
+  String get reportNeedsPractice => 'مزید مشق درکار';
+
+  @override
+  String get reportRecommended => 'تجویز کردہ اگلا سبق';
+
+  @override
+  String get reportRecentActivity => 'حالیہ سرگرمی';
+
+  @override
+  String get teacherSubjectPerformance => 'مضامین کی کارکردگی';
+
+  @override
+  String get teacherNeedingSupport => 'مدد کے متلاشی طلبہ';
+
+  @override
+  String get teacherStudentList => 'طلبہ کی فہرست';
+
+  @override
+  String get teacherWeakAreas => 'کمزور شعبہ';
+
+  @override
+  String get offlinePackageSize => 'پیکج سائز';
+
+  @override
+  String get offlineAvailable => 'دستیاب';
+
+  @override
+  String get offlineUpdate => 'اپ ڈیٹ';
 }

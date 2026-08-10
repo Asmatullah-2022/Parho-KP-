@@ -1197,6 +1197,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This language\'s voice isn\'t installed on your device yet.'**
   String get aiVoiceOutputUnavailable;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Report'**
+  String get reportTitle;
+
+  /// No description provided for @reportLessonsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons completed'**
+  String get reportLessonsCompleted;
+
+  /// No description provided for @reportQuizAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz average'**
+  String get reportQuizAverage;
+
+  /// No description provided for @reportStrongTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong subjects'**
+  String get reportStrongTopics;
+
+  /// No description provided for @reportNeedsPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs practice'**
+  String get reportNeedsPractice;
+
+  /// No description provided for @reportRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended next lesson'**
+  String get reportRecommended;
+
+  /// No description provided for @reportRecentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get reportRecentActivity;
+
+  /// No description provided for @teacherSubjectPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject performance'**
+  String get teacherSubjectPerformance;
+
+  /// No description provided for @teacherNeedingSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Students needing support'**
+  String get teacherNeedingSupport;
+
+  /// No description provided for @teacherStudentList.
+  ///
+  /// In en, this message translates to:
+  /// **'Student list'**
+  String get teacherStudentList;
+
+  /// No description provided for @teacherWeakAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak area'**
+  String get teacherWeakAreas;
+
+  /// No description provided for @offlinePackageSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Package size'**
+  String get offlinePackageSize;
+
+  /// No description provided for @offlineAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get offlineAvailable;
+
+  /// No description provided for @offlineUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get offlineUpdate;
 }
 
 class _AppLocalizationsDelegate

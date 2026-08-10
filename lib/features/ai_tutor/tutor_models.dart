@@ -11,6 +11,7 @@ class TutorContext {
     this.lessonTitle,
     this.objective,
     this.topic,
+    this.recentQuizPercent,
   });
 
   final String studentName;
@@ -22,6 +23,10 @@ class TutorContext {
   final String? lessonTitle;
   final String? objective;
   final String? topic;
+
+  /// The student's most recent quiz score for this lesson (0-100), if any.
+  /// Lets the tutor tailor recommendations (review vs. move on).
+  final int? recentQuizPercent;
 
   /// A short label of the current lesson/topic, if any.
   String? get focus => topic ?? lessonTitle;
@@ -36,6 +41,7 @@ class TutorContext {
         lessonTitle: lessonTitle,
         objective: objective,
         topic: topic,
+        recentQuizPercent: recentQuizPercent,
       );
 }
 

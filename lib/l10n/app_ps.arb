@@ -179,8 +179,8 @@
   "loading": "بارېږي…",
   "emptyTitle": "دلته لا هېڅ نشته",
   "emptyBody": "کله چې مواد شتون ولري، دلته به ښکاره شي.",
-  "errorTitle": "یو څه ناسم شو",
-  "errorBody": "مهرباني وکړئ بیا هڅه وکړئ.",
+  "errorTitle": "یوه ستونزه رامنځته شوه",
+  "errorBody": "بیا هڅه وکړئ.",
 
   "favoritesTitle": "خوښې",
   "favoritesEmpty": "لا تر اوسه هیڅ خوښ درس نشته. په یو درس باندې ⭐ کېکاږئ چې دلته خوندي شي.",
@@ -213,5 +213,22 @@
   "aiRecReady": "ډېر ښه! تاسو د بل درس لپاره چمتو یاست.",
   "aiRecKeepGoing": "دوام ورکړئ — تاسو ښه کوئ.",
   "aiVoiceUnavailable": "غږیزه پوښتنه لا تر اوسه پدې وسیله شتون نلري. مهرباني وکړئ خپله پوښتنه ولیکئ.",
-  "aiVoiceOutputUnavailable": "د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی."
+  "aiVoiceOutputUnavailable": "د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی.",
+
+  "reportTitle": "د زده‌کړې راپور",
+  "reportLessonsCompleted": "بشپړ شوي درسونه",
+  "reportQuizAverage": "د Quiz اوسط",
+  "reportStrongTopics": "پیاوړي مضامین",
+  "reportNeedsPractice": "نور تمرین ته اړتیا",
+  "reportRecommended": "وړاندیز شوی راتلونکی درس",
+  "reportRecentActivity": "وروستۍ فعالیت",
+
+  "teacherSubjectPerformance": "د مضامینو فعالیت",
+  "teacherNeedingSupport": "هغه زده‌کوونکي چې مرستې ته اړتیا لري",
+  "teacherStudentList": "د زده‌کوونکو لیست",
+  "teacherWeakAreas": "کمزوره برخه",
+
+  "offlinePackageSize": "د بستې اندازه",
+  "offlineAvailable": "شتون لري",
+  "offlineUpdate": "تازه کول"
 }

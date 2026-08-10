@@ -11,11 +11,15 @@ class DownloadButton extends StatelessWidget {
     required this.isDownloaded,
     required this.onDownload,
     required this.onDelete,
+    this.onUpdate,
   });
 
   final bool isDownloaded;
   final VoidCallback onDownload;
   final VoidCallback onDelete;
+
+  /// Optional "update" action shown for a downloaded package (re-download).
+  final VoidCallback? onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,12 @@ class DownloadButton extends StatelessWidget {
               fontSize: 13,
             ),
           ),
+          if (onUpdate != null)
+            IconButton(
+              tooltip: l10n.offlineUpdate,
+              onPressed: onUpdate,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
           IconButton(
             tooltip: l10n.labelDelete,
             onPressed: onDelete,

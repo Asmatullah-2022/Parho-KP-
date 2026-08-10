@@ -494,10 +494,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get emptyBody => 'کله چې مواد شتون ولري، دلته به ښکاره شي.';
 
   @override
-  String get errorTitle => 'یو څه ناسم شو';
+  String get errorTitle => 'یوه ستونزه رامنځته شوه';
 
   @override
-  String get errorBody => 'مهرباني وکړئ بیا هڅه وکړئ.';
+  String get errorBody => 'بیا هڅه وکړئ.';
 
   @override
   String get favoritesTitle => 'خوښې';
@@ -586,4 +586,46 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get aiVoiceOutputUnavailable =>
       'د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی.';
+
+  @override
+  String get reportTitle => 'د زده‌کړې راپور';
+
+  @override
+  String get reportLessonsCompleted => 'بشپړ شوي درسونه';
+
+  @override
+  String get reportQuizAverage => 'د Quiz اوسط';
+
+  @override
+  String get reportStrongTopics => 'پیاوړي مضامین';
+
+  @override
+  String get reportNeedsPractice => 'نور تمرین ته اړتیا';
+
+  @override
+  String get reportRecommended => 'وړاندیز شوی راتلونکی درس';
+
+  @override
+  String get reportRecentActivity => 'وروستۍ فعالیت';
+
+  @override
+  String get teacherSubjectPerformance => 'د مضامینو فعالیت';
+
+  @override
+  String get teacherNeedingSupport => 'هغه زده‌کوونکي چې مرستې ته اړتیا لري';
+
+  @override
+  String get teacherStudentList => 'د زده‌کوونکو لیست';
+
+  @override
+  String get teacherWeakAreas => 'کمزوره برخه';
+
+  @override
+  String get offlinePackageSize => 'د بستې اندازه';
+
+  @override
+  String get offlineAvailable => 'شتون لري';
+
+  @override
+  String get offlineUpdate => 'تازه کول';
 }

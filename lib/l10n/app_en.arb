@@ -213,5 +213,22 @@
   "aiRecReady": "Great! You are ready for the next lesson.",
   "aiRecKeepGoing": "Keep going — you're doing well.",
   "aiVoiceUnavailable": "Voice input isn't available on this device yet. Please type your question.",
-  "aiVoiceOutputUnavailable": "This language's voice isn't installed on your device yet."
+  "aiVoiceOutputUnavailable": "This language's voice isn't installed on your device yet.",
+
+  "reportTitle": "Learning Report",
+  "reportLessonsCompleted": "Lessons completed",
+  "reportQuizAverage": "Quiz average",
+  "reportStrongTopics": "Strong subjects",
+  "reportNeedsPractice": "Needs practice",
+  "reportRecommended": "Recommended next lesson",
+  "reportRecentActivity": "Recent activity",
+
+  "teacherSubjectPerformance": "Subject performance",
+  "teacherNeedingSupport": "Students needing support",
+  "teacherStudentList": "Student list",
+  "teacherWeakAreas": "Weak area",
+
+  "offlinePackageSize": "Package size",
+  "offlineAvailable": "Available",
+  "offlineUpdate": "Update"
 }
