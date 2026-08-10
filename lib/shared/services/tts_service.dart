@@ -10,11 +10,20 @@ const _ttsLocales = {
   'ps': 'ps-AF',
 };
 
+/// Reads text aloud (voice output). Abstracted so the implementation can change
+/// without touching callers, and so a language's availability can be checked to
+/// show a friendly message instead of failing silently.
+abstract class TextToSpeechService {
+  Future<void> speak(String text, {String languageCode = 'en'});
+  Future<void> stop();
+  Future<bool> isLanguageAvailable(String languageCode);
+}
+
 /// Thin wrapper around [FlutterTts] so lessons and answers can be read aloud.
 ///
 /// This powers the "Audio Learning" feature fully on-device — no network, no
 /// bundled audio files, so it works offline and uses no bandwidth.
-class TtsService {
+class TtsService implements TextToSpeechService {
   TtsService() {
     _init();
   }
@@ -34,6 +43,7 @@ class TtsService {
     }
   }
 
+  @override
   Future<void> speak(String text, {String languageCode = 'en'}) async {
     if (!_ready || text.trim().isEmpty) return;
     try {
@@ -46,6 +56,20 @@ class TtsService {
     }
   }
 
+  /// Whether the device has a voice for the given app language. Failing checks
+  /// return false so the UI can show a friendly message rather than crash.
+  @override
+  Future<bool> isLanguageAvailable(String languageCode) async {
+    try {
+      final locale = _ttsLocales[languageCode] ?? 'en-US';
+      final result = await _tts.isLanguageAvailable(locale);
+      return result == true || result == 1;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> stop() async {
     try {
       await _tts.stop();

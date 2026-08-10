@@ -180,5 +180,38 @@
   "emptyTitle": "دلته لا هېڅ نشته",
   "emptyBody": "کله چې مواد شتون ولري، دلته به ښکاره شي.",
   "errorTitle": "یو څه ناسم شو",
-  "errorBody": "مهرباني وکړئ بیا هڅه وکړئ."
+  "errorBody": "مهرباني وکړئ بیا هڅه وکړئ.",
+
+  "favoritesTitle": "خوښې",
+  "favoritesEmpty": "لا تر اوسه هیڅ خوښ درس نشته. په یو درس باندې ⭐ کېکاږئ چې دلته خوندي شي.",
+  "favoriteAdded": "خوښو ته اضافه شو ⭐",
+  "favoriteRemoved": "له خوښو لرې شو",
+  "favoriteAction": "خوښ",
+
+  "searchTitle": "لټون",
+  "searchHint": "درسونه ولټوئ…",
+  "searchPromptBody": "د خپلو درسونو لټولو لپاره ولیکئ — لکه: Fractions، بوټي، اسم.",
+  "searchNoResults": "هیڅ درس ونه موندل شو. بله کلمه هڅه وکړئ.",
+
+  "editProfileTitle": "پروفایل سمول",
+  "profileUpdated": "پروفایل تازه شو",
+
+  "aiEasyExample": "ماته مثال راکړئ",
+
+  "aiOfflineTitle": "آفلاین AI Tutor",
+  "aiOfflineHelp": "بنسټیزه زده‌کړې مرسته آفلاین شتون لري.",
+  "aiClear": "خبرې پاکې کړئ",
+  "aiExplainSimply": "په ساده ټکو کې تشریح کړئ",
+  "aiExplainForClass": "زما د ټولګي سره سم تشریح کړئ",
+  "aiAskQuestion": "له ما پوښتنه وکړئ",
+  "aiTestUnderstanding": "زما پوهه وازمویئ",
+  "aiExplainAnother": "په بله بڼه تشریح کړئ",
+  "aiTranslate": "ژباړه کړئ او تشریح یې کړئ",
+  "aiCorrect": "سم ✓  آفرین!",
+  "aiTryAgain": "بشپړ نه — راځئ بیا هڅه وکړو.",
+  "aiRecReview": "راځئ دا موضوع بیا تکرار کړو.",
+  "aiRecReady": "ډېر ښه! تاسو د بل درس لپاره چمتو یاست.",
+  "aiRecKeepGoing": "دوام ورکړئ — تاسو ښه کوئ.",
+  "aiVoiceUnavailable": "غږیزه پوښتنه لا تر اوسه پدې وسیله شتون نلري. مهرباني وکړئ خپله پوښتنه ولیکئ.",
+  "aiVoiceOutputUnavailable": "د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی."
 }

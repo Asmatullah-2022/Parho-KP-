@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/ai_tutor/ai_tutor_screen.dart';
+import '../../features/favorites/favorites_screen.dart';
 import '../../features/home/app_shell.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/language/language_screen.dart';
 import '../../features/lesson/lesson_screen.dart';
 import '../../features/offline/offline_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
+import '../../features/profile/edit_profile_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/progress/progress_screen.dart';
+import '../../features/search/search_screen.dart';
 import '../../features/quiz/quiz_hub_screen.dart';
 import '../../features/quiz/quiz_result_screen.dart';
 import '../../features/quiz/quiz_screen.dart';
@@ -115,7 +118,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.aiTutor,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const AiTutorScreen(),
+        builder: (context, state) => AiTutorScreen(
+          lessonId: int.tryParse(state.uri.queryParameters['lessonId'] ?? ''),
+        ),
       ),
       GoRoute(
         path: Routes.offline,
@@ -131,6 +136,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.teacher,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const TeacherScreen(),
+      ),
+      GoRoute(
+        path: Routes.favorites,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: Routes.search,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: Routes.editProfile,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const EditProfileScreen(),
       ),
 
       // Bottom-navigation shell with five branches.

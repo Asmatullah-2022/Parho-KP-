@@ -24,6 +24,20 @@ class LearningRepository {
     );
   }
 
+  /// Updates the current student's editable profile fields.
+  Future<void> updateStudentProfile({
+    required int studentId,
+    required String name,
+    required int grade,
+    required String languageCode,
+  }) async {
+    final existing = await db.currentStudent();
+    if (existing == null || existing.id != studentId) return;
+    await db.updateStudent(
+      existing.copyWith(name: name, grade: grade, languageCode: languageCode),
+    );
+  }
+
   Future<List<Subject>> subjectsForGrade(int grade) =>
       db.subjectsForGrade(grade);
 
@@ -113,13 +127,31 @@ class LearningRepository {
     return SubjectDetail(subject: subject, units: unitViews, percent: percent);
   }
 
-  /// The next lesson to continue — the first not-completed lesson found across
-  /// the student's subjects, or the very first lesson if all are done.
+  /// The next lesson to continue.
+  ///
+  /// Prefers the student's **most recently started but not-completed** lesson
+  /// (by `lesson_progress.updatedAt`). Falls back to the first not-completed
+  /// lesson in course order, or the very first lesson if everything is done.
   Future<ContinueTarget?> continueTarget(Student student) async {
     final subjects = await db.subjectsForGrade(student.grade);
     final progress = await db.progressForStudent(student.id);
     final byLesson = {for (final p in progress) p.lessonId: p};
 
+    // 1) Most recently updated incomplete progress row.
+    final incomplete = progress.where((p) => !p.completed).toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    for (final p in incomplete) {
+      final ctx = await lessonWithSubject(p.lessonId);
+      if (ctx?.subject != null) {
+        return ContinueTarget(
+          subject: ctx!.subject!,
+          lesson: ctx.lesson,
+          percent: p.percent,
+        );
+      }
+    }
+
+    // 2) First not-completed lesson in course order (nothing started yet).
     Lesson? firstEver;
     Subject? firstEverSubject;
 
@@ -224,5 +256,102 @@ class LearningRepository {
       isDownloaded: value,
       sizeBytes: value ? 250 * 1024 : 0,
     );
+  }
+
+  // ---- favorites ---------------------------------------------------------
+
+  Future<bool> isFavorite(int studentId, int lessonId) =>
+      db.isFavorite(studentId, lessonId);
+
+  Future<bool> toggleFavorite(int studentId, int lessonId) =>
+      db.toggleFavorite(studentId, lessonId);
+
+  /// Favorite lessons for a student, each paired with its subject (for display).
+  Future<List<({Lesson lesson, Subject? subject})>> favoriteLessons(
+      int studentId) async {
+    final ids = await db.favoriteLessonIds(studentId);
+    final lessonRows = await db.lessonsByIds(ids);
+    final result = <({Lesson lesson, Subject? subject})>[];
+    for (final lesson in lessonRows) {
+      final unit = await db.unitById(lesson.unitId);
+      final subject =
+          unit == null ? null : await db.subjectById(unit.subjectId);
+      result.add((lesson: lesson, subject: subject));
+    }
+    return result;
+  }
+
+  // ---- AI tutor: chat history --------------------------------------------
+
+  Future<void> saveTutorMessage(int studentId, bool fromAi, String content) =>
+      db.insertTutorMessage(
+          studentId: studentId, fromAi: fromAi, content: content);
+
+  Future<List<TutorMessage>> recentTutorMessages(int studentId) =>
+      db.recentTutorMessages(studentId);
+
+  Future<void> clearTutorMessages(int studentId) =>
+      db.clearTutorMessages(studentId);
+
+  // ---- AI tutor: understanding checks + adaptive learning ----------------
+
+  Future<void> saveUnderstandingCheck(
+    int studentId,
+    int? lessonId,
+    bool isCorrect,
+  ) =>
+      db.insertUnderstandingCheck(
+          studentId: studentId, lessonId: lessonId, isCorrect: isCorrect);
+
+  /// A simple local adaptive signal for a lesson, from understanding checks and
+  /// the latest quiz score. Repeated mistakes → review; strong results → ready.
+  Future<AdaptiveRecommendation> adaptiveRecommendation(
+      int studentId, int lessonId) async {
+    final checks = await db.understandingChecksForLesson(studentId, lessonId);
+    var correct = checks.where((c) => c.isCorrect).length;
+    var wrong = checks.length - correct;
+
+    // Fold in the most recent quiz attempt for this lesson, if any.
+    final attempts = (await db.attemptsForStudent(studentId))
+        .where((a) => a.lessonId == lessonId)
+        .toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    if (attempts.isNotEmpty) {
+      final a = attempts.first;
+      correct += a.score;
+      wrong += (a.total - a.score);
+    }
+
+    if (correct + wrong == 0) return AdaptiveRecommendation.keepGoing;
+    if (wrong >= 2 && wrong >= correct) return AdaptiveRecommendation.review;
+    if (correct >= 2 && correct > wrong) return AdaptiveRecommendation.ready;
+    return AdaptiveRecommendation.keepGoing;
+  }
+
+  // ---- search ------------------------------------------------------------
+
+  /// Offline search over all lessons in the student's grade. Matches the query
+  /// against lesson title/objective and the subject name in any language.
+  Future<List<({Lesson lesson, Subject? subject})>> searchLessons(
+      int grade, String query) async {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return [];
+    final subjects = await db.subjectsForGrade(grade);
+    final results = <({Lesson lesson, Subject? subject})>[];
+    for (final subject in subjects) {
+      final subjectHay =
+          '${subject.nameEn} ${subject.nameUr} ${subject.namePs}'.toLowerCase();
+      final lessonRows = await db.lessonsForSubject(subject.id);
+      for (final lesson in lessonRows) {
+        final hay = '${lesson.titleEn} ${lesson.titleUr} ${lesson.titlePs} '
+                '${lesson.objectiveEn} ${lesson.objectiveUr} ${lesson.objectivePs} '
+                '$subjectHay'
+            .toLowerCase();
+        if (hay.contains(q)) {
+          results.add((lesson: lesson, subject: subject));
+        }
+      }
+    }
+    return results;
   }
 }

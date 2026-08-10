@@ -498,4 +498,92 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get errorBody => 'مهرباني وکړئ بیا هڅه وکړئ.';
+
+  @override
+  String get favoritesTitle => 'خوښې';
+
+  @override
+  String get favoritesEmpty =>
+      'لا تر اوسه هیڅ خوښ درس نشته. په یو درس باندې ⭐ کېکاږئ چې دلته خوندي شي.';
+
+  @override
+  String get favoriteAdded => 'خوښو ته اضافه شو ⭐';
+
+  @override
+  String get favoriteRemoved => 'له خوښو لرې شو';
+
+  @override
+  String get favoriteAction => 'خوښ';
+
+  @override
+  String get searchTitle => 'لټون';
+
+  @override
+  String get searchHint => 'درسونه ولټوئ…';
+
+  @override
+  String get searchPromptBody =>
+      'د خپلو درسونو لټولو لپاره ولیکئ — لکه: Fractions، بوټي، اسم.';
+
+  @override
+  String get searchNoResults => 'هیڅ درس ونه موندل شو. بله کلمه هڅه وکړئ.';
+
+  @override
+  String get editProfileTitle => 'پروفایل سمول';
+
+  @override
+  String get profileUpdated => 'پروفایل تازه شو';
+
+  @override
+  String get aiEasyExample => 'ماته مثال راکړئ';
+
+  @override
+  String get aiOfflineTitle => 'آفلاین AI Tutor';
+
+  @override
+  String get aiOfflineHelp => 'بنسټیزه زده‌کړې مرسته آفلاین شتون لري.';
+
+  @override
+  String get aiClear => 'خبرې پاکې کړئ';
+
+  @override
+  String get aiExplainSimply => 'په ساده ټکو کې تشریح کړئ';
+
+  @override
+  String get aiExplainForClass => 'زما د ټولګي سره سم تشریح کړئ';
+
+  @override
+  String get aiAskQuestion => 'له ما پوښتنه وکړئ';
+
+  @override
+  String get aiTestUnderstanding => 'زما پوهه وازمویئ';
+
+  @override
+  String get aiExplainAnother => 'په بله بڼه تشریح کړئ';
+
+  @override
+  String get aiTranslate => 'ژباړه کړئ او تشریح یې کړئ';
+
+  @override
+  String get aiCorrect => 'سم ✓  آفرین!';
+
+  @override
+  String get aiTryAgain => 'بشپړ نه — راځئ بیا هڅه وکړو.';
+
+  @override
+  String get aiRecReview => 'راځئ دا موضوع بیا تکرار کړو.';
+
+  @override
+  String get aiRecReady => 'ډېر ښه! تاسو د بل درس لپاره چمتو یاست.';
+
+  @override
+  String get aiRecKeepGoing => 'دوام ورکړئ — تاسو ښه کوئ.';
+
+  @override
+  String get aiVoiceUnavailable =>
+      'غږیزه پوښتنه لا تر اوسه پدې وسیله شتون نلري. مهرباني وکړئ خپله پوښتنه ولیکئ.';
+
+  @override
+  String get aiVoiceOutputUnavailable =>
+      'د دې ژبې غږ لا ستاسو په وسیله کې نصب شوی نه دی.';
 }

@@ -11,7 +11,7 @@ import '../database/app_database.dart';
 /// curriculum content later — the schema and this seeding entry point are the
 /// only things that need to change.
 const _seedVersionKey = 'seed_version';
-const _seedVersion = '1';
+const _seedVersion = '2';
 const int demoGrade = 5;
 
 /// Small trilingual string bundle.
@@ -71,6 +71,19 @@ Future<void> seedDemoContentIfNeeded(AppDatabase db) async {
   if (version == _seedVersion) return;
 
   await db.transaction(() async {
+    // Clear any previously-seeded catalog (and its dependent rows) so a content
+    // upgrade re-seeds cleanly instead of duplicating. Foreign-key cascades are
+    // not relied upon, so delete child tables explicitly, deepest first.
+    await db.delete(db.quizAnswers).go();
+    await db.delete(db.quizAttempts).go();
+    await db.delete(db.lessonProgress).go();
+    await db.delete(db.favorites).go();
+    await db.delete(db.downloads).go();
+    await db.delete(db.questions).go();
+    await db.delete(db.lessons).go();
+    await db.delete(db.units).go();
+    await db.delete(db.subjects).go();
+
     for (var s = 0; s < _catalog.length; s++) {
       final subject = _catalog[s];
       final subjectId = await db.into(db.subjects).insert(
@@ -530,6 +543,66 @@ const _catalog = <_Subject>[
                 ],
                 0,
               ),
+              _Q(
+                T('In the fraction 3/5, which is the denominator?',
+                    '3/5 میں نیچے کا عدد (denominator) کون سا ہے؟',
+                    'په ۳/۵ کې ښکتنۍ شمېره کومه ده؟'),
+                [
+                  T('5', '5', '۵'),
+                  T('3', '3', '۳'),
+                  T('8', '8', '۸'),
+                  T('2', '2', '۲'),
+                ],
+                0,
+              ),
+              _Q(
+                T('A pizza is cut into 8 equal slices. You eat 3. What fraction did you eat?',
+                    'ایک پیزا 8 برابر حصوں میں کاٹا گیا۔ آپ نے 3 کھائے۔ آپ نے کون سا حصہ کھایا؟',
+                    'یو پیزا په ۸ برابرو ټوټو ووېشل شو. تاسو ۳ وخوړل. کومه برخه مو وخوړه؟'),
+                [
+                  T('3/8', '3/8', '۳/۸'),
+                  T('8/3', '8/3', '۸/۳'),
+                  T('3/5', '3/5', '۳/۵'),
+                  T('1/8', '1/8', '۱/۸'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Which fraction means one whole?',
+                    'کون سا کسر ایک مکمل (پورا) کو ظاہر کرتا ہے؟',
+                    'کوم کسر یو بشپړ ښیي؟'),
+                [
+                  T('4/4', '4/4', '۴/۴'),
+                  T('1/4', '1/4', '۱/۴'),
+                  T('3/4', '3/4', '۳/۴'),
+                  T('1/2', '1/2', '۱/۲'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Half of a chocolate bar is the same as…',
+                    'چاکلیٹ کا آدھا حصہ برابر ہے…',
+                    'د چاکلیټ نیمه برخه برابره ده…'),
+                [
+                  T('1/2', '1/2', '۱/۲'),
+                  T('1/3', '1/3', '۱/۳'),
+                  T('2/3', '2/3', '۲/۳'),
+                  T('1/5', '1/5', '۱/۵'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Which of these is a fraction?',
+                    'ان میں سے کون سا کسر ہے؟',
+                    'له دې څخه کوم یو کسر دی؟'),
+                [
+                  T('3/4', '3/4', '۳/۴'),
+                  T('7', '7', '۷'),
+                  T('12', '12', '۱۲'),
+                  T('20', '20', '۲۰'),
+                ],
+                0,
+              ),
             ],
           ),
           _Lesson(
@@ -561,6 +634,42 @@ const _catalog = <_Subject>[
                   T('1/6', '1/6', '۱/۶'),
                   T('Equal', 'برابر', 'برابر'),
                   T('None', 'کوئی نہیں', 'هیڅ یو'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Which is smaller: 1/2 or 1/5?',
+                    'کون سا چھوٹا ہے: 1/2 یا 1/5؟',
+                    'کوم کوچنی دی: ۱/۲ یا ۱/۵؟'),
+                [
+                  T('1/5', '1/5', '۱/۵'),
+                  T('1/2', '1/2', '۱/۲'),
+                  T('Equal', 'برابر', 'برابر'),
+                  T('None', 'کوئی نہیں', 'هیڅ یو'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Put in order, biggest first: 1/2, 1/4, 1/8. Which is biggest?',
+                    'ترتیب دیں، سب سے بڑا پہلے: 1/2، 1/4، 1/8۔ سب سے بڑا کون سا ہے؟',
+                    'ترتیب کړئ، تر ټولو لوی لومړی: ۱/۲، ۱/۴، ۱/۸. تر ټولو لوی کوم دی؟'),
+                [
+                  T('1/2', '1/2', '۱/۲'),
+                  T('1/4', '1/4', '۱/۴'),
+                  T('1/8', '1/8', '۱/۸'),
+                  T('They are equal', 'سب برابر ہیں', 'ټول برابر دي'),
+                ],
+                0,
+              ),
+              _Q(
+                T('Which two fractions are equal?',
+                    'کون سے دو کسر برابر ہیں؟',
+                    'کوم دوه کسرونه برابر دي؟'),
+                [
+                  T('1/2 and 2/4', '1/2 اور 2/4', '۱/۲ او ۲/۴'),
+                  T('1/2 and 1/3', '1/2 اور 1/3', '۱/۲ او ۱/۳'),
+                  T('1/4 and 1/2', '1/4 اور 1/2', '۱/۴ او ۱/۲'),
+                  T('1/3 and 1/4', '1/3 اور 1/4', '۱/۳ او ۱/۴'),
                 ],
                 0,
               ),

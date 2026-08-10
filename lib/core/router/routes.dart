@@ -14,11 +14,16 @@ abstract final class Routes {
   static const offline = '/offline';
   static const progress = '/progress';
   static const profile = '/profile';
+  static const editProfile = '/profile/edit';
   static const settings = '/settings';
   static const teacher = '/teacher';
+  static const favorites = '/favorites';
+  static const search = '/search';
 
   static String subjectPath(int id) => '$subject/$id';
   static String lessonPath(int id) => '$lesson/$id';
+  static String aiTutorPath({int? lessonId}) =>
+      lessonId == null ? aiTutor : '$aiTutor?lessonId=$lessonId';
   static String quizPath(int lessonId) => '$quiz/$lessonId';
   static String quizResultPath(int attemptId) => '$quizResult/$attemptId';
 }

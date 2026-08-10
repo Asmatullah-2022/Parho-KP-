@@ -140,6 +140,122 @@ void main() {
     expect(all.where((d) => d.subjectId == science.id).length, 1);
   });
 
+  test('Fractions unit has at least 10 questions', () async {
+    final math = (await repo.subjectsForGrade(5))
+        .firstWhere((s) => s.code == 'math');
+    final units = await db.unitsForSubject(math.id);
+    final fractionsUnit =
+        units.firstWhere((u) => u.titleEn.toLowerCase().contains('fraction'));
+    final lessons = await db.lessonsForUnit(fractionsUnit.id);
+    var total = 0;
+    for (final l in lessons) {
+      total += (await repo.questionsForLesson(l.id)).length;
+    }
+    expect(total, greaterThanOrEqualTo(10));
+  });
+
+  test('favorites can be toggled and listed', () async {
+    final student =
+        await repo.createStudent(name: 'Ali', grade: 5, languageCode: 'en');
+    final lesson = (await db.allLessons()).first;
+
+    expect(await repo.isFavorite(student, lesson.id), isFalse);
+    final added = await repo.toggleFavorite(student, lesson.id);
+    expect(added, isTrue);
+    expect(await repo.isFavorite(student, lesson.id), isTrue);
+
+    final favs = await repo.favoriteLessons(student);
+    expect(favs.map((f) => f.lesson.id), contains(lesson.id));
+
+    final removed = await repo.toggleFavorite(student, lesson.id);
+    expect(removed, isFalse);
+    expect(await repo.isFavorite(student, lesson.id), isFalse);
+  });
+
+  test('offline search finds lessons by keyword', () async {
+    for (final term in ['fraction', 'plant', 'noun', 'pakistan']) {
+      final results = await repo.searchLessons(5, term);
+      expect(results, isNotEmpty, reason: 'search "$term" should match');
+    }
+    final none = await repo.searchLessons(5, 'zzzznotacourse');
+    expect(none, isEmpty);
+  });
+
+  test('continue target is the most recently started incomplete lesson',
+      () async {
+    final student =
+        await repo.createStudent(name: 'Hina', grade: 5, languageCode: 'en');
+    final studentRow = await repo.currentStudent();
+    final lessons = await db.allLessons();
+    final first = lessons[0];
+    final second = lessons[1];
+
+    await repo.markLessonProgress(student, first.id, completed: false);
+    // Drift stores DateTime at second precision, so cross a second boundary to
+    // make "most recent" deterministic.
+    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    await repo.markLessonProgress(student, second.id, completed: false);
+
+    final target = await repo.continueTarget(studentRow!);
+    expect(target, isNotNull);
+    expect(target!.lesson.id, second.id,
+        reason: 'should resume the most recently opened incomplete lesson');
+  });
+
+  test('student profile can be edited', () async {
+    final student =
+        await repo.createStudent(name: 'Old', grade: 3, languageCode: 'en');
+    await repo.updateStudentProfile(
+      studentId: student,
+      name: 'Ahmed',
+      grade: 5,
+      languageCode: 'ur',
+    );
+    final updated = await repo.currentStudent();
+    expect(updated!.name, 'Ahmed');
+    expect(updated.grade, 5);
+    expect(updated.languageCode, 'ur');
+  });
+
+  test('tutor chat history is stored, listed and cleared', () async {
+    final student =
+        await repo.createStudent(name: 'Zeb', grade: 5, languageCode: 'ur');
+    await repo.saveTutorMessage(student, false, 'مجھے fractions سمجھ نہیں آ رہے۔');
+    await repo.saveTutorMessage(student, true, 'کوئی بات نہیں…');
+
+    final history = await repo.recentTutorMessages(student);
+    expect(history.length, 2);
+    expect(history.first.fromAi, isFalse);
+    expect(history.last.fromAi, isTrue);
+
+    await repo.clearTutorMessages(student);
+    expect(await repo.recentTutorMessages(student), isEmpty);
+  });
+
+  test('adaptive recommendation reacts to understanding results', () async {
+    final student =
+        await repo.createStudent(name: 'Noor', grade: 5, languageCode: 'en');
+    final lesson = (await db.allLessons()).first;
+
+    // No signals yet.
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.keepGoing);
+
+    // Repeated mistakes → review.
+    await repo.saveUnderstandingCheck(student, lesson.id, false);
+    await repo.saveUnderstandingCheck(student, lesson.id, false);
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.review);
+
+    // Then several correct → ready.
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    await repo.saveUnderstandingCheck(student, lesson.id, true);
+    expect(await repo.adaptiveRecommendation(student, lesson.id),
+        AdaptiveRecommendation.ready);
+  });
+
   test('status buckets map percentages correctly', () {
     expect(statusFromPercent(80), ProgressStatus.strong);
     expect(statusFromPercent(50), ProgressStatus.improving);

@@ -500,4 +500,92 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get errorBody => 'براہِ کرم دوبارہ کوشش کریں۔';
+
+  @override
+  String get favoritesTitle => 'پسندیدہ';
+
+  @override
+  String get favoritesEmpty =>
+      'ابھی کوئی پسندیدہ سبق نہیں۔ کسی سبق پر ⭐ دبائیں تاکہ یہاں محفوظ ہو جائے۔';
+
+  @override
+  String get favoriteAdded => 'پسندیدہ میں شامل ⭐';
+
+  @override
+  String get favoriteRemoved => 'پسندیدہ سے ہٹا دیا گیا';
+
+  @override
+  String get favoriteAction => 'پسندیدہ';
+
+  @override
+  String get searchTitle => 'تلاش';
+
+  @override
+  String get searchHint => 'اسباق تلاش کریں…';
+
+  @override
+  String get searchPromptBody =>
+      'اپنے اسباق تلاش کرنے کے لیے لکھیں — مثلاً: Fractions، پودے، اسم۔';
+
+  @override
+  String get searchNoResults => 'کوئی سبق نہیں ملا۔ کوئی اور لفظ آزمائیں۔';
+
+  @override
+  String get editProfileTitle => 'پروفائل میں تبدیلی';
+
+  @override
+  String get profileUpdated => 'پروفائل اپ ڈیٹ ہو گیا';
+
+  @override
+  String get aiEasyExample => 'مجھے مثال دیں';
+
+  @override
+  String get aiOfflineTitle => 'آف لائن AI Tutor';
+
+  @override
+  String get aiOfflineHelp => 'بنیادی تعلیمی مدد آف لائن دستیاب ہے۔';
+
+  @override
+  String get aiClear => 'گفتگو صاف کریں';
+
+  @override
+  String get aiExplainSimply => 'آسان الفاظ میں سمجھائیں';
+
+  @override
+  String get aiExplainForClass => 'میری جماعت کے مطابق سمجھائیں';
+
+  @override
+  String get aiAskQuestion => 'مجھ سے سوال پوچھیں';
+
+  @override
+  String get aiTestUnderstanding => 'میری سمجھ جانچیں';
+
+  @override
+  String get aiExplainAnother => 'کسی اور طریقے سے سمجھائیں';
+
+  @override
+  String get aiTranslate => 'ترجمہ کر کے سمجھائیں';
+
+  @override
+  String get aiCorrect => 'درست ✓  شاباش!';
+
+  @override
+  String get aiTryAgain => 'بالکل نہیں — آئیے دوبارہ کوشش کریں۔';
+
+  @override
+  String get aiRecReview => 'آئیے اس موضوع کو دوبارہ دہراتے ہیں۔';
+
+  @override
+  String get aiRecReady => 'بہت خوب! آپ اگلے سبق کے لیے تیار ہیں۔';
+
+  @override
+  String get aiRecKeepGoing => 'جاری رکھیں — آپ اچھا کر رہے ہیں۔';
+
+  @override
+  String get aiVoiceUnavailable =>
+      'آواز سے سوال ابھی اس آلے پر دستیاب نہیں۔ براہِ کرم اپنا سوال لکھیں۔';
+
+  @override
+  String get aiVoiceOutputUnavailable =>
+      'اس زبان کی آواز ابھی آپ کے آلے پر نصب نہیں ہے۔';
 }

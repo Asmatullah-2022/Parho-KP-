@@ -226,9 +226,10 @@ void main() {
     // Home dashboard is shown again).
     await tester.pageBack();
     await _settle(tester);
+    // AI Tutor is gone and the bottom-nav shell (Home) is shown again.
     expect(find.textContaining('I am here to help'), findsNothing);
-    await _waitFor(tester, find.text('What to study today?'));
-    expect(find.text('What to study today?'), findsOneWidget);
+    await _waitFor(tester, find.text('Lessons'));
+    expect(find.text('Lessons'), findsWidgets);
 
     // Profile tab (bottom navigation).
     await _tap(tester, find.text('Profile'));
@@ -247,5 +248,25 @@ void main() {
     await _waitFor(tester, find.text('Font Size'));
     expect(find.text('Font Size'), findsOneWidget);
     expect(find.text('About'), findsOneWidget);
+  });
+
+  testWidgets('Offline search and Favorites screens work', (tester) async {
+    await tester.pumpWidget(
+        await _buildApp(_authedPrefs(), withStudent: true));
+    await _settleSplash(tester);
+
+    // Open search from the Home search bar and query "Fractions".
+    await _tap(tester, find.text('Search lessons…'));
+    await tester.enterText(find.byType(TextField).first, 'Fractions');
+    await _settle(tester);
+    await _waitFor(tester, find.text('Understanding Fractions'));
+    expect(find.text('Understanding Fractions'), findsWidgets);
+    await tester.pageBack();
+    await _settle(tester);
+
+    // Open the Favorites screen (empty for a new student).
+    await _tap(tester, find.text('Favorites'));
+    await _waitFor(tester, find.textContaining('No favorite'));
+    expect(find.textContaining('No favorite'), findsOneWidget);
   });
 }

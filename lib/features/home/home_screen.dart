@@ -63,6 +63,40 @@ class HomeScreen extends ConsumerWidget {
                       const OfflineBadge(),
                     ],
                   ),
+                  const SizedBox(height: 16),
+                  // Offline lesson search entry.
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => context.push(Routes.search),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color:
+                                Theme.of(context).colorScheme.outlineVariant),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search_rounded,
+                              color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.searchHint,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   _ContinueCard(langCode: langCode),
                   const SizedBox(height: 24),
@@ -224,6 +258,8 @@ class _ActionsGrid extends ConsumerWidget {
           () => context.push(Routes.offline)),
       _ActionTile('📊', l10n.tileMyProgress, AppColors.green,
           () => context.go(Routes.progress)),
+      _ActionTile('⭐', l10n.favoritesTitle, AppColors.improving,
+          () => context.push(Routes.favorites)),
       _ActionTile('🎧', l10n.tileAudioLearning, AppColors.blue,
           () => context.push(Routes.offline)),
     ];

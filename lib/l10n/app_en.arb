@@ -180,5 +180,38 @@
   "emptyTitle": "Nothing here yet",
   "emptyBody": "Content will appear here once available.",
   "errorTitle": "Something went wrong",
-  "errorBody": "Please try again."
+  "errorBody": "Please try again.",
+
+  "favoritesTitle": "Favorites",
+  "favoritesEmpty": "No favorite lessons yet. Tap the ⭐ on a lesson to save it here.",
+  "favoriteAdded": "Added to favorites ⭐",
+  "favoriteRemoved": "Removed from favorites",
+  "favoriteAction": "Favorite",
+
+  "searchTitle": "Search",
+  "searchHint": "Search lessons…",
+  "searchPromptBody": "Type to search your lessons — for example: Fractions, Plants, Nouns.",
+  "searchNoResults": "No lessons found. Try another word.",
+
+  "editProfileTitle": "Edit Profile",
+  "profileUpdated": "Profile updated",
+
+  "aiEasyExample": "Give me an example",
+
+  "aiOfflineTitle": "Offline AI Tutor",
+  "aiOfflineHelp": "Basic learning help is available offline.",
+  "aiClear": "Clear conversation",
+  "aiExplainSimply": "Explain simply",
+  "aiExplainForClass": "Explain for my class",
+  "aiAskQuestion": "Ask me a question",
+  "aiTestUnderstanding": "Test my understanding",
+  "aiExplainAnother": "Explain another way",
+  "aiTranslate": "Translate explanation",
+  "aiCorrect": "Correct ✓  Well done!",
+  "aiTryAgain": "Not quite — let's try again.",
+  "aiRecReview": "Let's review this topic again.",
+  "aiRecReady": "Great! You are ready for the next lesson.",
+  "aiRecKeepGoing": "Keep going — you're doing well.",
+  "aiVoiceUnavailable": "Voice input isn't available on this device yet. Please type your question.",
+  "aiVoiceOutputUnavailable": "This language's voice isn't installed on your device yet."
 }
