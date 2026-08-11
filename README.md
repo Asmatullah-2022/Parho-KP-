@@ -115,6 +115,7 @@ breaking the fully-offline experience or adding heavy dependencies:
 | Packages       | `archive` (ZIP, pure Dart)              |
 | Connectivity   | `connectivity_plus` (Wi-Fi/mobile/offline) |
 | Offline audio  | `audioplayers` (file playback, lazy)    |
+| Free space     | `disk_space_plus` (download pre-check)   |
 
 ## Project structure (feature-first)
 
@@ -355,8 +356,16 @@ changes.
   silently using data. Large packages confirm size before downloading.
 - Downloads report progress, **resume** from a saved partial, **retry**
   transient failures, and can be **canceled**.
-- Storage is checked (where practical) before downloading; insufficient space is
-  reported and never corrupts existing content.
+- **Storage pre-check (real device free space).** Before a download starts, the
+  app queries actual free space via `disk_space_plus` (a `statfs`-style query on
+  the app's storage — no extra Android permission) through the `StorageProbe`
+  abstraction (`DeviceStorageProbe`, MB→bytes). It requires room for the package
+  **plus a temporary-download copy plus a safety margin**
+  (`requiredFreeBytes = 2 × packageSize + 5 MB`). If space is insufficient the
+  download is blocked with "Not enough storage space to download this lesson
+  package." and the installed working package is never touched. If free space
+  can't be read on a platform, it returns `null` ("unknown") and the pre-check
+  is safely skipped rather than guessing.
 - If the catalog is unreachable, the Content Packages screen shows
   "Offline — installed content is available" and installed packages keep working.
 
@@ -369,6 +378,11 @@ changes.
 - `flutter test test/content_packages_widget_test.dart` drives the UI:
   Available → Download → (verify) → Installed, then confirms the content is
   imported into the local database.
+- `flutter test test/phase7_1_storage_test.dart` covers the storage pre-check:
+  enough space installs, insufficient space blocks (and never destroys the
+  installed package), unknown space (null) skips the check, plus the
+  `DeviceStorageProbe` MB→bytes conversion and the required-space /
+  temp-overhead calculation.
 
 ## Production deployment guide (Phase 7)
 

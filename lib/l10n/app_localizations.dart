@@ -1489,7 +1489,7 @@ abstract class AppLocalizations {
   /// No description provided for @pkgErrStorage.
   ///
   /// In en, this message translates to:
-  /// **'Not enough storage space to install this package.'**
+  /// **'Not enough storage space to download this lesson package.'**
   String get pkgErrStorage;
 
   /// No description provided for @pkgErrCorrupt.

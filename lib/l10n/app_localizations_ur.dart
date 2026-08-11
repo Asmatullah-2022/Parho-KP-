@@ -737,7 +737,8 @@ class AppLocalizationsUr extends AppLocalizations {
   String get pkgErrHttp => 'مواد سرور تک نہیں پہنچا جا سکا۔';
 
   @override
-  String get pkgErrStorage => 'اس پیکج کو انسٹال کرنے کے لیے کافی جگہ نہیں ہے۔';
+  String get pkgErrStorage =>
+      'یہ سبق پیکج ڈاؤن لوڈ کرنے کے لیے کافی جگہ نہیں ہے۔';
 
   @override
   String get pkgErrCorrupt => 'اس پیکج کی تصدیق نہ ہو سکی اور انسٹال نہیں ہوا۔';

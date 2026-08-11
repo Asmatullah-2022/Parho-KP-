@@ -11,6 +11,7 @@ import 'audio_store.dart';
 import 'connectivity.dart';
 import 'connectivity_plus_service.dart';
 import 'content_package_download_service.dart';
+import 'device_storage_probe.dart';
 import 'download_http_client.dart';
 import 'package_catalog.dart';
 import 'package_manifest.dart';
@@ -93,6 +94,7 @@ final contentPackageDownloadServiceProvider =
     connectivity: ref.watch(connectivityProvider),
     audioStore: ref.watch(audioStoreProvider),
     partialStore: FilePartialDownloadStore(),
+    storageProbe: DeviceStorageProbe(),
     appVersion: config.appVersion,
     maxRetries: config.download.maxRetries,
   );

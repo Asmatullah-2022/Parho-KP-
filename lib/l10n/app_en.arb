@@ -268,7 +268,7 @@
   "pkgErrNoInternet": "No internet connection.",
   "pkgErrTimeout": "Download timed out. Please try again.",
   "pkgErrHttp": "Could not reach the content server.",
-  "pkgErrStorage": "Not enough storage space to install this package.",
+  "pkgErrStorage": "Not enough storage space to download this lesson package.",
   "pkgErrCorrupt": "This package could not be verified and was not installed.",
   "pkgErrChecksum": "The download was incomplete or corrupted.",
   "pkgErrSignature": "This package could not be verified and was not installed.",

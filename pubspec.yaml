@@ -45,6 +45,7 @@ dependencies:
   # app stays testable and offline-first:
   connectivity_plus: ^6.0.0  # real Wi-Fi / mobile / offline detection
   audioplayers: ^6.1.0       # play compressed offline lesson audio (file-based)
+  disk_space_plus: ^0.2.6    # real device free-space check before downloads
 
 dev_dependencies:
   flutter_test:

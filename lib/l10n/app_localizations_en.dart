@@ -738,7 +738,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pkgErrStorage =>
-      'Not enough storage space to install this package.';
+      'Not enough storage space to download this lesson package.';
 
   @override
   String get pkgErrCorrupt =>

@@ -102,6 +102,7 @@ class ContentPackageDownloadService {
     this.maxRetries = 3,
     this.retryDelay = const Duration(milliseconds: 200),
     this.connectivityCheckEveryChunks = 8,
+    this.storageMarginBytes = 5 * 1024 * 1024,
   })  : partialStore = partialStore ?? InMemoryPartialStore(),
         verifier = verifier ?? PackageVerifier(),
         connectivity = connectivity ?? ManualConnectivity();
@@ -125,6 +126,21 @@ class ContentPackageDownloadService {
   /// How often (in downloaded chunks) to re-check connectivity mid-stream so a
   /// download can pause safely if Wi-Fi drops. Higher = less overhead.
   final int connectivityCheckEveryChunks;
+
+  /// Extra free space (bytes) required beyond the package + its temporary copy,
+  /// as a safety margin. Default 5 MB.
+  final int storageMarginBytes;
+
+  /// Temporary-download overhead for a package of [packageSizeBytes]: the
+  /// download is first written to a temporary `.part` file (~one package) plus
+  /// a safety margin, before being imported into the installed location.
+  int tempDownloadOverheadBytes(int packageSizeBytes) =>
+      packageSizeBytes + storageMarginBytes;
+
+  /// Total free space required before starting: the installed package plus the
+  /// temporary-download overhead. Used by the storage pre-check.
+  int requiredFreeBytes(int packageSizeBytes) =>
+      packageSizeBytes + tempDownloadOverheadBytes(packageSizeBytes);
 
   /// Downloads and installs [meta]. Emits progress via [onProgress]. Returns the
   /// final outcome. Never throws for the expected failure cases — they are
@@ -162,9 +178,11 @@ class ContentPackageDownloadService {
       return fail(DownloadError.wifiRequired);
     }
 
-    // 3) Storage pre-check (best effort).
+    // 3) Storage pre-check (best effort): need room for the package AND its
+    // temporary download copy. If free space is unknown (null), skip the check
+    // rather than guess. An installed working package is never touched here.
     final free = await storageProbe.freeBytes();
-    if (free != null && free < meta.sizeBytes) {
+    if (free != null && free < requiredFreeBytes(meta.sizeBytes)) {
       return fail(DownloadError.insufficientStorage);
     }
 

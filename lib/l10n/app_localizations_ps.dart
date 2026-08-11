@@ -736,7 +736,8 @@ class AppLocalizationsPs extends AppLocalizations {
   String get pkgErrHttp => 'د محتوا سرور ته لاسرسی نشو.';
 
   @override
-  String get pkgErrStorage => 'د دې کڅوړې د نصبولو لپاره کافي ځای نشته.';
+  String get pkgErrStorage =>
+      'د دې لوست کڅوړې د ښکته کولو لپاره کافي ځای نشته.';
 
   @override
   String get pkgErrCorrupt => 'دا کڅوړه تایید نشوه او نصب نشوه.';
