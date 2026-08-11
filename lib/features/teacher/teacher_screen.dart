@@ -19,7 +19,16 @@ class TeacherScreen extends ConsumerWidget {
     final classes = ref.watch(teacherClassesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.teacherDashboardTitle)),
+      appBar: AppBar(
+        title: Text(l10n.teacherDashboardTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.contentPackagesTitle,
+            icon: const Icon(Icons.inventory_2_rounded),
+            onPressed: () => context.push(Routes.contentPackages),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),

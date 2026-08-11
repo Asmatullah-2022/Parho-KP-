@@ -90,6 +90,10 @@ breaking the fully-offline experience or adding heavy dependencies:
 | Preferences    | `shared_preferences`                    |
 | Audio (TTS)    | `flutter_tts` (on-device)               |
 | i18n           | Flutter `gen_l10n` (ARB files)          |
+| Downloads      | `http` (HTTPS, behind an interface)     |
+| Integrity      | `crypto` (SHA-256)                       |
+| Authenticity   | `cryptography` (Ed25519, public key)    |
+| Packages       | `archive` (ZIP, pure Dart)              |
 
 ## Project structure (feature-first)
 
@@ -102,7 +106,11 @@ lib/
   l10n/                     # app_en/ur/ps.arb (+ generated)
   data/database/            # Drift tables, DAOs, connection (schema v3)
   data/seed/                # DEMO CONTENT (Grade 1–8, 3 languages)
-  data/content/             # content models, validation, importer, packages
+  core/config/              # single catalog config point (endpoint + public key)
+  data/content/             # content models, validation, importer, packages,
+                            #   manifest, verifier (sha256+ed25519), zip reader,
+                            #   catalog (mock/remote), download service
+  features/content_packages/ # Content Packages screen (install/update/progress)
   data/sync/                # low-bandwidth outbound sync queue
   data/accounts/            # student + teacher accounts (mock auth)
   data/repositories/        # progress computation + data access
@@ -221,6 +229,125 @@ The app never holds an AI provider key. The intended flow is
 3. No UI changes are needed. Safety and cost-control (local knowledge/cache
    first, minimal payloads) already run before any call, and the app falls back
    to the offline `MockTutorService` whenever the backend isn't configured.
+
+## Content package delivery (Phase 6)
+
+Phase 6 wires a real, secure, offline-first delivery pipeline for downloadable
+content packages. Installed content always works offline; the network is used
+only to discover and fetch new/updated packages.
+
+```
+catalog manifest ─► download (Wi-Fi, resumable) ─► SHA-256 checksum ─►
+Ed25519 signature ─► validate structure ─► import into SQLite ─► mark installed
+```
+
+### Package archive format
+
+A package is a ZIP with a predictable layout:
+
+```
+package.zip
+  manifest.json                 # packageId, grade, subject, language, version, isDemo, province
+  content/
+    subjects.json               # [{ id, code, emoji, name{en,ur,ps} }]
+    units.json                  # [{ id, subjectId, title{…} }]
+    lessons.json                # [{ id, unitId, title, objective, explanation, example, illustration }]
+    questions.json              # [{ id, lessonId, prompt, options[…], correctIndex }]
+  audio/                        # optional compressed offline audio
+  images/                       # optional images
+```
+
+The importer (`PackageZipReader`) requires `manifest.json` and the four
+`content/*.json` files, reassembles them into a `ContentPackage`, and runs the
+Phase 5 `ContentValidator`. Malformed packages are rejected before any DB write.
+
+### Catalog manifest format
+
+The catalog endpoint returns JSON describing available packages:
+
+```jsonc
+{
+  "manifestVersion": 1,
+  "generatedAt": "2026-01-01T00:00:00Z",
+  "packages": [
+    {
+      "packageId": "grade5_math_ur_v1",
+      "grade": 5, "subject": "math", "language": "ur",
+      "version": "1", "contentVersion": 1,
+      "sizeBytes": 24576,
+      "downloadUrl": "https://cdn.example.org/grade5_math_ur_v1.zip",
+      "sha256": "<hex>",
+      "signature": "<base64 Ed25519 signature over the archive bytes>",
+      "releaseDate": "2026-01-01",
+      "minimumAppVersion": "1.0.0"
+    }
+  ]
+}
+```
+
+### Signing process & public/private key architecture
+
+Packages are signed with **Ed25519**. The split is strict:
+
+- The **private signing key lives only on your build/release infrastructure** —
+  never in this repository or the shipped APK.
+- The app ships **only the public verification key** (set once in
+  `lib/core/config/catalog_config.dart` → `CatalogConfig.publicKeyBase64`).
+- Before install, the app verifies **both** the SHA-256 checksum (integrity)
+  and the Ed25519 signature (authenticity). If either fails, the package is
+  **not installed** and the download is deleted. A working installed version is
+  never replaced by an unverified or corrupt download.
+
+To sign a production package (outside the app), compute `sha256(package.zip)`
+and `ed25519_sign(private_key, package.zip)`, then publish both in the manifest.
+Keep the private key in a secret manager / HSM — **never commit it**.
+
+### Development mock host vs. production server
+
+Because a production server may not exist yet, the app ships a **development
+mock host** (`MockContentHost`) that builds and **really signs** an original
+demo package (Grade 5 Mathematics — Fractions, 3 lessons, 11 questions, en/ur/ps)
+with a per-run dev key, then serves it through the same interfaces as production.
+This exercises the full download→verify→install pipeline entirely offline.
+
+This is **not** a production server. Switch to a real catalog by editing the
+single config point:
+
+```dart
+// lib/core/config/catalog_config.dart (or override catalogConfigProvider in main)
+const CatalogConfig(
+  useMockHost: false,
+  catalogUrl: 'https://cdn.example.org/catalog.json',
+  publicKeyBase64: '<your Ed25519 public key>',
+  appVersion: '1.0.0',
+);
+```
+
+`MockPackageManifestCatalog` ↔ `RemotePackageManifestCatalog` and the mock ↔
+real download clients are interchangeable — the Content Packages UI never
+changes.
+
+### Wi-Fi, storage, updates and offline behavior
+
+- **Wi-Fi-only = ON by default**; mobile-data downloads are OFF by default. On
+  mobile data the app shows "Wi-Fi required for content download" instead of
+  silently using data. Large packages confirm size before downloading.
+- Downloads report progress, **resume** from a saved partial, **retry**
+  transient failures, and can be **canceled**.
+- Storage is checked (where practical) before downloading; insufficient space is
+  reported and never corrupts existing content.
+- If the catalog is unreachable, the Content Packages screen shows
+  "Offline — installed content is available" and installed packages keep working.
+
+### Testing downloads & offline installation
+
+- `flutter test test/phase6_test.dart` covers manifest parsing, checksum and
+  Ed25519 signature (pass/fail/wrong-key), version comparison, Wi-Fi/offline/
+  storage gating, download + resume + retry, install, and **rollback** (a failed
+  update keeps the previous version).
+- `flutter test test/content_packages_widget_test.dart` drives the UI:
+  Available → Download → (verify) → Installed, then confirms the content is
+  imported into the local database.
 
 ## Sync (low-bandwidth, offline-first)
 

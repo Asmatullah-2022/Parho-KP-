@@ -117,6 +117,12 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: () => context.push(Routes.offline),
                 ),
                 _ProfileTile(
+                  icon: Icons.inventory_2_rounded,
+                  color: AppColors.green,
+                  label: l10n.profileContentPackages,
+                  onTap: () => context.push(Routes.contentPackages),
+                ),
+                _ProfileTile(
                   icon: Icons.settings_rounded,
                   color: AppColors.blueDark,
                   label: l10n.profileSettings,

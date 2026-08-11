@@ -35,6 +35,12 @@ dependencies:
   # Internationalization helpers
   intl: any
 
+  # Content package delivery (Phase 6). All pure Dart, no native code:
+  http: ^1.2.0          # HTTPS manifest fetch + package download (behind an interface)
+  crypto: ^3.0.3        # SHA-256 checksum verification
+  cryptography: ^2.7.0  # Ed25519 signature verification (public key only in app)
+  archive: ^3.6.1       # ZIP package reading (offline)
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -247,6 +247,10 @@ void main() {
     await _tap(tester, find.text('Settings'));
     await _waitFor(tester, find.text('Font Size'));
     expect(find.text('Font Size'), findsOneWidget);
+    // 'About' is near the bottom of a scrollable settings list; scroll to it.
+    await tester.scrollUntilVisible(find.text('About'), 200,
+        scrollable: find.byType(Scrollable).first);
+    await _settle(tester);
     expect(find.text('About'), findsOneWidget);
   });
 

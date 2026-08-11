@@ -43,6 +43,8 @@ class AppSettings {
     this.hasProfile = false,
     this.audioEnabled = true,
     this.downloadOnWifiOnly = true,
+    this.allowMobileDataDownloads = false,
+    this.autoCheckUpdates = true,
     this.offlineMode = false,
   });
 
@@ -52,7 +54,16 @@ class AppSettings {
   final bool onboardingComplete;
   final bool hasProfile;
   final bool audioEnabled;
+
+  /// Wi-Fi-only downloads. Default ON — the app never silently uses mobile data.
   final bool downloadOnWifiOnly;
+
+  /// Explicit opt-in to downloading over mobile data. Default OFF.
+  final bool allowMobileDataDownloads;
+
+  /// Automatically check the catalog for content updates when appropriate.
+  /// Default ON (checks are lightweight; large downloads are never automatic).
+  final bool autoCheckUpdates;
   final bool offlineMode;
 
   AppSettings copyWith({
@@ -63,6 +74,8 @@ class AppSettings {
     bool? hasProfile,
     bool? audioEnabled,
     bool? downloadOnWifiOnly,
+    bool? allowMobileDataDownloads,
+    bool? autoCheckUpdates,
     bool? offlineMode,
   }) {
     return AppSettings(
@@ -73,6 +86,9 @@ class AppSettings {
       hasProfile: hasProfile ?? this.hasProfile,
       audioEnabled: audioEnabled ?? this.audioEnabled,
       downloadOnWifiOnly: downloadOnWifiOnly ?? this.downloadOnWifiOnly,
+      allowMobileDataDownloads:
+          allowMobileDataDownloads ?? this.allowMobileDataDownloads,
+      autoCheckUpdates: autoCheckUpdates ?? this.autoCheckUpdates,
       offlineMode: offlineMode ?? this.offlineMode,
     );
   }
@@ -93,6 +109,8 @@ abstract final class _PrefKeys {
   static const hasProfile = 'hasProfile';
   static const audioEnabled = 'audioEnabled';
   static const downloadOnWifiOnly = 'downloadOnWifiOnly';
+  static const allowMobileDataDownloads = 'allowMobileDataDownloads';
+  static const autoCheckUpdates = 'autoCheckUpdates';
   static const offlineMode = 'offlineMode';
 }
 
@@ -117,6 +135,9 @@ class SettingsController extends StateNotifier<AppSettings> {
       hasProfile: prefs.getBool(_PrefKeys.hasProfile) ?? false,
       audioEnabled: prefs.getBool(_PrefKeys.audioEnabled) ?? true,
       downloadOnWifiOnly: prefs.getBool(_PrefKeys.downloadOnWifiOnly) ?? true,
+      allowMobileDataDownloads:
+          prefs.getBool(_PrefKeys.allowMobileDataDownloads) ?? false,
+      autoCheckUpdates: prefs.getBool(_PrefKeys.autoCheckUpdates) ?? true,
       offlineMode: prefs.getBool(_PrefKeys.offlineMode) ?? false,
     );
   }
@@ -154,6 +175,16 @@ class SettingsController extends StateNotifier<AppSettings> {
   Future<void> setDownloadOnWifiOnly(bool value) async {
     state = state.copyWith(downloadOnWifiOnly: value);
     await _prefs.setBool(_PrefKeys.downloadOnWifiOnly, value);
+  }
+
+  Future<void> setAllowMobileDataDownloads(bool value) async {
+    state = state.copyWith(allowMobileDataDownloads: value);
+    await _prefs.setBool(_PrefKeys.allowMobileDataDownloads, value);
+  }
+
+  Future<void> setAutoCheckUpdates(bool value) async {
+    state = state.copyWith(autoCheckUpdates: value);
+    await _prefs.setBool(_PrefKeys.autoCheckUpdates, value);
   }
 
   Future<void> setOfflineMode(bool value) async {

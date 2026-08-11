@@ -83,6 +83,24 @@ class SettingsScreen extends ConsumerWidget {
               onChanged: controller.setDownloadOnWifiOnly,
             ),
             SwitchListTile(
+              secondary: const Icon(Icons.signal_cellular_alt_rounded),
+              title: Text(l10n.settingsMobileDataDownloads),
+              value: settings.allowMobileDataDownloads,
+              onChanged: controller.setAllowMobileDataDownloads,
+            ),
+            SwitchListTile(
+              secondary: const Icon(Icons.system_update_rounded),
+              title: Text(l10n.settingsAutoCheckUpdates),
+              value: settings.autoCheckUpdates,
+              onChanged: controller.setAutoCheckUpdates,
+            ),
+            ListTile(
+              leading: const Icon(Icons.inventory_2_rounded),
+              title: Text(l10n.contentPackagesTitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push(Routes.contentPackages),
+            ),
+            SwitchListTile(
               secondary: const Icon(Icons.cloud_off_rounded),
               title: Text(l10n.settingsOfflineMode),
               subtitle: Text(l10n.settingsOfflineSubtitle),

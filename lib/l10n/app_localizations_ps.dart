@@ -671,4 +671,86 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reportCsvReady => 'راپور په CSV کې خوندي شو';
+
+  @override
+  String get contentPackagesTitle => 'د محتوا کڅوړې';
+
+  @override
+  String get profileContentPackages => 'د محتوا کڅوړې';
+
+  @override
+  String get packageStatusInstalled => 'نصب شوی';
+
+  @override
+  String get packageStatusAvailable => 'شته';
+
+  @override
+  String get packageStatusUpdate => 'تازه کول شته';
+
+  @override
+  String get packageCheckUpdates => 'تازه معلومات وګورئ';
+
+  @override
+  String get packageOfflineNotice => 'آفلاین — نصب شوې محتوا شته ده.';
+
+  @override
+  String get packageVerifying => 'تایید کیږي…';
+
+  @override
+  String get packageInstalling => 'نصبیږي…';
+
+  @override
+  String get packageDownloading => 'ښکته کیږي…';
+
+  @override
+  String get packageInstalledOk => 'په بریالیتوب سره نصب شو';
+
+  @override
+  String get packageNoneAvailable => 'اوس مهال هیڅ کڅوړه نشته.';
+
+  @override
+  String get packageConfirmTitle => 'دا کڅوړه ښکته کړئ؟';
+
+  @override
+  String packageConfirmBody(String size) {
+    return 'د دې کڅوړې اندازه $size ده. اوس یې ښکته کړئ؟';
+  }
+
+  @override
+  String get settingsContentUpdates => 'د محتوا تازه معلومات';
+
+  @override
+  String get settingsAutoCheckUpdates =>
+      'د محتوا تازه معلومات په اتومات ډول وګورئ';
+
+  @override
+  String get settingsMobileDataDownloads => 'د موبایل ډیټا له لارې ښکته کول';
+
+  @override
+  String get pkgErrNoInternet => 'د انټرنیټ اړیکه نشته.';
+
+  @override
+  String get pkgErrTimeout => 'د ښکته کولو وخت پای ته ورسید. بیا هڅه وکړئ.';
+
+  @override
+  String get pkgErrHttp => 'د محتوا سرور ته لاسرسی نشو.';
+
+  @override
+  String get pkgErrStorage => 'د دې کڅوړې د نصبولو لپاره کافي ځای نشته.';
+
+  @override
+  String get pkgErrCorrupt => 'دا کڅوړه تایید نشوه او نصب نشوه.';
+
+  @override
+  String get pkgErrChecksum => 'ښکته کول ناتمام یا خراب و.';
+
+  @override
+  String get pkgErrSignature => 'دا کڅوړه تایید نشوه او نصب نشوه.';
+
+  @override
+  String get pkgErrUnsupportedApp =>
+      'د دې کڅوړې د نصبولو لپاره اپلیکیشن تازه کړئ.';
+
+  @override
+  String get pkgErrWifiRequired => 'د محتوا ښکته کولو لپاره وای فای اړین دی.';
 }

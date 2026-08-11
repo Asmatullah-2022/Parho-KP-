@@ -672,4 +672,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportCsvReady => 'Report saved as CSV';
+
+  @override
+  String get contentPackagesTitle => 'Content Packages';
+
+  @override
+  String get profileContentPackages => 'Content Packages';
+
+  @override
+  String get packageStatusInstalled => 'Installed';
+
+  @override
+  String get packageStatusAvailable => 'Available';
+
+  @override
+  String get packageStatusUpdate => 'Update available';
+
+  @override
+  String get packageCheckUpdates => 'Check for updates';
+
+  @override
+  String get packageOfflineNotice =>
+      'Offline — installed content is available.';
+
+  @override
+  String get packageVerifying => 'Verifying…';
+
+  @override
+  String get packageInstalling => 'Installing…';
+
+  @override
+  String get packageDownloading => 'Downloading…';
+
+  @override
+  String get packageInstalledOk => 'Installed successfully';
+
+  @override
+  String get packageNoneAvailable => 'No packages available right now.';
+
+  @override
+  String get packageConfirmTitle => 'Download this package?';
+
+  @override
+  String packageConfirmBody(String size) {
+    return 'This package is $size. Download now?';
+  }
+
+  @override
+  String get settingsContentUpdates => 'Content updates';
+
+  @override
+  String get settingsAutoCheckUpdates => 'Auto-check for content updates';
+
+  @override
+  String get settingsMobileDataDownloads => 'Download over mobile data';
+
+  @override
+  String get pkgErrNoInternet => 'No internet connection.';
+
+  @override
+  String get pkgErrTimeout => 'Download timed out. Please try again.';
+
+  @override
+  String get pkgErrHttp => 'Could not reach the content server.';
+
+  @override
+  String get pkgErrStorage =>
+      'Not enough storage space to install this package.';
+
+  @override
+  String get pkgErrCorrupt =>
+      'This package could not be verified and was not installed.';
+
+  @override
+  String get pkgErrChecksum => 'The download was incomplete or corrupted.';
+
+  @override
+  String get pkgErrSignature =>
+      'This package could not be verified and was not installed.';
+
+  @override
+  String get pkgErrUnsupportedApp =>
+      'Please update the app to install this package.';
+
+  @override
+  String get pkgErrWifiRequired => 'Wi-Fi required for content download.';
 }

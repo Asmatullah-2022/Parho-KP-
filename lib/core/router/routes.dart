@@ -21,6 +21,7 @@ abstract final class Routes {
   static const search = '/search';
   static const report = '/report';
   static const achievements = '/achievements';
+  static const contentPackages = '/content-packages';
   static const teacherClass = '/teacher/class'; // /teacher/class/:id
   static const teacherStudent = '/teacher/student'; // /teacher/student/:id
 

@@ -1365,6 +1365,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report saved as CSV'**
   String get reportCsvReady;
+
+  /// No description provided for @contentPackagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Packages'**
+  String get contentPackagesTitle;
+
+  /// No description provided for @profileContentPackages.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Packages'**
+  String get profileContentPackages;
+
+  /// No description provided for @packageStatusInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed'**
+  String get packageStatusInstalled;
+
+  /// No description provided for @packageStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get packageStatusAvailable;
+
+  /// No description provided for @packageStatusUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get packageStatusUpdate;
+
+  /// No description provided for @packageCheckUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get packageCheckUpdates;
+
+  /// No description provided for @packageOfflineNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — installed content is available.'**
+  String get packageOfflineNotice;
+
+  /// No description provided for @packageVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying…'**
+  String get packageVerifying;
+
+  /// No description provided for @packageInstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing…'**
+  String get packageInstalling;
+
+  /// No description provided for @packageDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading…'**
+  String get packageDownloading;
+
+  /// No description provided for @packageInstalledOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed successfully'**
+  String get packageInstalledOk;
+
+  /// No description provided for @packageNoneAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No packages available right now.'**
+  String get packageNoneAvailable;
+
+  /// No description provided for @packageConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download this package?'**
+  String get packageConfirmTitle;
+
+  /// No description provided for @packageConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This package is {size}. Download now?'**
+  String packageConfirmBody(String size);
+
+  /// No description provided for @settingsContentUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Content updates'**
+  String get settingsContentUpdates;
+
+  /// No description provided for @settingsAutoCheckUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-check for content updates'**
+  String get settingsAutoCheckUpdates;
+
+  /// No description provided for @settingsMobileDataDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Download over mobile data'**
+  String get settingsMobileDataDownloads;
+
+  /// No description provided for @pkgErrNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get pkgErrNoInternet;
+
+  /// No description provided for @pkgErrTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Download timed out. Please try again.'**
+  String get pkgErrTimeout;
+
+  /// No description provided for @pkgErrHttp.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the content server.'**
+  String get pkgErrHttp;
+
+  /// No description provided for @pkgErrStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough storage space to install this package.'**
+  String get pkgErrStorage;
+
+  /// No description provided for @pkgErrCorrupt.
+  ///
+  /// In en, this message translates to:
+  /// **'This package could not be verified and was not installed.'**
+  String get pkgErrCorrupt;
+
+  /// No description provided for @pkgErrChecksum.
+  ///
+  /// In en, this message translates to:
+  /// **'The download was incomplete or corrupted.'**
+  String get pkgErrChecksum;
+
+  /// No description provided for @pkgErrSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'This package could not be verified and was not installed.'**
+  String get pkgErrSignature;
+
+  /// No description provided for @pkgErrUnsupportedApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Please update the app to install this package.'**
+  String get pkgErrUnsupportedApp;
+
+  /// No description provided for @pkgErrWifiRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi required for content download.'**
+  String get pkgErrWifiRequired;
 }
 
 class _AppLocalizationsDelegate

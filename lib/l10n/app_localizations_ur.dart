@@ -673,4 +673,86 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get reportCsvReady => 'رپورٹ CSV میں محفوظ ہو گئی';
+
+  @override
+  String get contentPackagesTitle => 'مواد کے پیکجز';
+
+  @override
+  String get profileContentPackages => 'مواد کے پیکجز';
+
+  @override
+  String get packageStatusInstalled => 'انسٹال شدہ';
+
+  @override
+  String get packageStatusAvailable => 'دستیاب';
+
+  @override
+  String get packageStatusUpdate => 'اپ ڈیٹ دستیاب';
+
+  @override
+  String get packageCheckUpdates => 'اپ ڈیٹ چیک کریں';
+
+  @override
+  String get packageOfflineNotice => 'آف لائن — انسٹال شدہ مواد دستیاب ہے۔';
+
+  @override
+  String get packageVerifying => 'تصدیق ہو رہی ہے…';
+
+  @override
+  String get packageInstalling => 'انسٹال ہو رہا ہے…';
+
+  @override
+  String get packageDownloading => 'ڈاؤن لوڈ ہو رہا ہے…';
+
+  @override
+  String get packageInstalledOk => 'کامیابی سے انسٹال ہو گیا';
+
+  @override
+  String get packageNoneAvailable => 'ابھی کوئی پیکج دستیاب نہیں۔';
+
+  @override
+  String get packageConfirmTitle => 'یہ پیکج ڈاؤن لوڈ کریں؟';
+
+  @override
+  String packageConfirmBody(String size) {
+    return 'اس پیکج کا حجم $size ہے۔ ابھی ڈاؤن لوڈ کریں؟';
+  }
+
+  @override
+  String get settingsContentUpdates => 'مواد کی اپ ڈیٹس';
+
+  @override
+  String get settingsAutoCheckUpdates => 'مواد کی اپ ڈیٹ خودکار چیک کریں';
+
+  @override
+  String get settingsMobileDataDownloads => 'موبائل ڈیٹا پر ڈاؤن لوڈ';
+
+  @override
+  String get pkgErrNoInternet => 'انٹرنیٹ کنکشن نہیں ہے۔';
+
+  @override
+  String get pkgErrTimeout => 'ڈاؤن لوڈ کا وقت ختم ہو گیا۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get pkgErrHttp => 'مواد سرور تک نہیں پہنچا جا سکا۔';
+
+  @override
+  String get pkgErrStorage => 'اس پیکج کو انسٹال کرنے کے لیے کافی جگہ نہیں ہے۔';
+
+  @override
+  String get pkgErrCorrupt => 'اس پیکج کی تصدیق نہ ہو سکی اور انسٹال نہیں ہوا۔';
+
+  @override
+  String get pkgErrChecksum => 'ڈاؤن لوڈ نامکمل یا خراب تھا۔';
+
+  @override
+  String get pkgErrSignature =>
+      'اس پیکج کی تصدیق نہ ہو سکی اور انسٹال نہیں ہوا۔';
+
+  @override
+  String get pkgErrUnsupportedApp =>
+      'اس پیکج کو انسٹال کرنے کے لیے ایپ اپ ڈیٹ کریں۔';
+
+  @override
+  String get pkgErrWifiRequired => 'مواد ڈاؤن لوڈ کے لیے وائی فائی درکار ہے۔';
 }
