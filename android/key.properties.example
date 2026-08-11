@@ -1,0 +1,15 @@
+# Release signing template for Parho KP.
+#
+# Copy this file to `android/key.properties` and fill in your real values.
+# `android/key.properties` and the keystore (*.jks) are GIT-IGNORED and must
+# NEVER be committed to the repository. Keep the keystore and its passwords in
+# a secure secret store; only this example (with placeholder values) is tracked.
+#
+# Generate a keystore once (outside the repo), e.g.:
+#   keytool -genkey -v -keystore ~/parho-kp-upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+
+storeFile=/absolute/path/to/parho-kp-upload.jks
+storePassword=CHANGE_ME
+keyAlias=upload
+keyPassword=CHANGE_ME

@@ -89,6 +89,16 @@ class PackageZipReader {
     for (final f in archive.files) {
       if (!f.isFile) continue;
       final name = f.name;
+      // Reject unsafe archive paths (absolute paths, `..` traversal, backslash
+      // segments) so a malicious package can never write outside its own
+      // directory when audio/images are extracted (ZIP path-traversal / "zip
+      // slip"). Signature verification runs first; this is defense-in-depth.
+      if (_isUnsafeEntryPath(name)) {
+        throw const PackageFormatException(
+          'Package contains an unsafe file path.',
+          code: 'unsafe_path',
+        );
+      }
       final content = f.content as List<int>;
       if (name.startsWith('audio/')) audioFiles[name] = content;
       if (name.startsWith('images/')) imageFiles[name] = content;
@@ -143,6 +153,20 @@ class PackageZipReader {
       audioFiles: audioFiles,
       imageFiles: imageFiles,
     );
+  }
+
+  /// True if an archive entry path is unsafe to extract: empty, absolute,
+  /// containing a `..` segment, or using backslashes.
+  bool _isUnsafeEntryPath(String name) {
+    if (name.isEmpty) return true;
+    if (name.startsWith('/') || name.startsWith('\\')) return true;
+    if (name.contains('\\')) return true;
+    // Windows drive letters (e.g. C:\ or C:/).
+    if (RegExp(r'^[A-Za-z]:').hasMatch(name)) return true;
+    for (final segment in name.split('/')) {
+      if (segment == '..') return true;
+    }
+    return false;
   }
 
   Map<String, dynamic> _decodeObject(List<int> bytes, String label) {

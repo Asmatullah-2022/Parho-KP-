@@ -45,7 +45,12 @@ class HttpDownloadClient implements DownloadHttpClient {
 
   @override
   Future<ByteStreamResponse> openStream(String url, {int fromByte = 0}) async {
-    final request = http.Request('GET', Uri.parse(url));
+    final uri = Uri.parse(url);
+    // Production content must come over HTTPS only — never plain HTTP.
+    if (uri.scheme != 'https') {
+      throw ArgumentError('Refusing non-HTTPS download URL: $url');
+    }
+    final request = http.Request('GET', uri);
     if (fromByte > 0) {
       request.headers['Range'] = 'bytes=$fromByte-';
     }

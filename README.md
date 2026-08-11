@@ -468,13 +468,60 @@ flutter build apk --release \
    falls back to TTS) → take the quiz → save progress → view progress.
    Everything works with no internet.
 
-### 10. Build the release APK
+### 10. Build the release APK / App Bundle
 
-```bash
-flutter build apk --release   # → build/app/outputs/flutter-apk/app-release.apk
+**Release signing.** The release build reads its keystore from
+`android/key.properties`, which is **git-ignored and must never be committed**.
+Copy the template and fill in real values (see `android/key.properties.example`):
+
+```properties
+storeFile=/absolute/path/to/parho-kp-upload.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
 ```
 
-Requires the Android SDK (see the note under **Building the APK**).
+Generate the keystore once, outside the repo:
+
+```bash
+keytool -genkey -v -keystore ~/parho-kp-upload.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+When `key.properties` is absent (e.g. `flutter run`, CI without secrets) the
+build falls back to debug signing so development still works — but a Play
+submission **requires** the release keystore.
+
+**Build commands** (need the Android SDK — see **Building the APK**):
+
+```bash
+# APK (sideload / direct install):
+flutter build apk --release \
+  --dart-define=PARHO_CATALOG_URL=https://cdn.example.org/parho-kp/catalog.json \
+  --dart-define=PARHO_PUBLIC_KEY=<base64 public key>
+#   → build/app/outputs/flutter-apk/app-release.apk
+
+# App Bundle (Google Play):
+flutter build appbundle --release \
+  --dart-define=PARHO_CATALOG_URL=https://cdn.example.org/parho-kp/catalog.json \
+  --dart-define=PARHO_PUBLIC_KEY=<base64 public key>
+#   → build/app/outputs/bundle/release/app-release.aab
+```
+
+## Release security requirements
+
+- **No secrets in the repo.** Private signing keys (`*.jks`), `key.properties`,
+  `*.p12/*.pem`, and `.env` files are git-ignored; only the app's **public**
+  Ed25519 key ships (via `--dart-define`).
+- **HTTPS only.** The production catalog + download clients refuse any non-HTTPS
+  URL.
+- **Verified installs only.** Packages are SHA-256 + Ed25519 verified before
+  import; a failed/corrupt/insufficient-storage install never destroys the
+  installed version (transactional rollback).
+- **Safe extraction.** Archive entries with absolute paths or `..` traversal
+  ("zip slip") are rejected, and audio extraction is contained to the store dir.
+- **Minimal permissions.** Only `INTERNET` + `ACCESS_NETWORK_STATE`; no
+  location/camera/contacts/microphone/storage.
 
 ## Sync (low-bandwidth, offline-first)
 

@@ -35,8 +35,12 @@ class RemotePackageManifestCatalog implements PackageManifestCatalog {
 
   @override
   Future<ContentPackageManifest> fetchManifest() async {
-    final resp =
-        await _client.get(Uri.parse(catalogUrl)).timeout(timeout);
+    final uri = Uri.parse(catalogUrl);
+    // The production catalog must be served over HTTPS only.
+    if (uri.scheme != 'https') {
+      throw ArgumentError('Refusing non-HTTPS catalog URL: $catalogUrl');
+    }
+    final resp = await _client.get(uri).timeout(timeout);
     if (resp.statusCode != 200) {
       throw http.ClientException(
           'Catalog returned HTTP ${resp.statusCode}', Uri.parse(catalogUrl));

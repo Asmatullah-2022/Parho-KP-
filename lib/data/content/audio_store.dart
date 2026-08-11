@@ -44,10 +44,16 @@ class FileAudioStore implements AudioStore {
       String packageId, Map<String, List<int>> files) async {
     if (files.isEmpty) return;
     final root = await _rootDir();
+    final safeId = _sanitizeSegment(packageId);
     for (final entry in files.entries) {
-      final target = File(p.join(root.path, packageId, entry.key));
-      await target.parent.create(recursive: true);
-      await target.writeAsBytes(entry.value, flush: true);
+      final target =
+          p.normalize(p.join(root.path, safeId, entry.key));
+      // Defense-in-depth: never write outside the store root even if a path
+      // slipped through validation.
+      if (!p.isWithin(root.path, target)) continue;
+      final file = File(target);
+      await file.parent.create(recursive: true);
+      await file.writeAsBytes(entry.value, flush: true);
     }
   }
 
@@ -55,9 +61,15 @@ class FileAudioStore implements AudioStore {
   Future<String?> resolve(String audioAsset) async {
     if (audioAsset.isEmpty) return null;
     final root = await _rootDir();
-    final path = p.join(root.path, audioAsset);
+    final path = p.normalize(p.join(root.path, audioAsset));
+    // Never resolve a path that escapes the store root.
+    if (!p.isWithin(root.path, path)) return null;
     return await File(path).exists() ? path : null;
   }
+
+  /// Removes path separators / `..` from a single path segment.
+  String _sanitizeSegment(String s) =>
+      s.replaceAll(RegExp(r'[^A-Za-z0-9_.-]'), '_');
 
   @override
   Future<void> clear(String packageId) async {
