@@ -254,6 +254,41 @@ Upload the `.aab` to the Google Play Console.
    (the app refuses non-HTTPS URLs). Point `PARHO_CATALOG_URL` at `catalog.json`
    and make sure the manifest `downloadUrl`s are the HTTPS URLs of the ZIPs.
 
+### 7. Install the APK on a real Android phone
+1. On the phone: **Settings → About phone → tap "Build number" 7 times** to
+   enable Developer Options, then **Settings → System → Developer options →
+   enable "USB debugging"**.
+2. Connect the phone to the PC by USB and accept the "Allow USB debugging"
+   prompt on the phone.
+3. Confirm it's detected: `flutter devices` (or `adb devices`).
+4. Install the release APK:
+   ```powershell
+   adb install -r build\app\outputs\flutter-apk\app-release.apk
+   ```
+   (Or copy the `.apk` to the phone and tap it, allowing "install from unknown
+   sources".) The AAB is **not** installable directly — it is for Play upload
+   only.
+
+### 8. Test on the device (offline-first acceptance check)
+The app works offline out of the box thanks to the seeded demo content.
+1. **First run:** onboarding → choose language → create a profile (no phone/email).
+2. **Offline lessons/quizzes/progress:** turn on Airplane Mode (or Settings →
+   Offline Mode in the app). Open a Subject → a Lesson → **Start Quiz** → answer
+   → see the result → open **Progress**. All must work with no internet.
+3. **Urdu RTL:** Settings → Language → **اردو**. The whole UI must mirror
+   right-to-left with no cut-off text. Repeat for **پښتو**.
+4. **Audio:** on a lesson, tap **Listen** — a downloaded package plays its audio
+   file; otherwise on-device TTS reads the lesson aloud (works offline).
+5. **Content packages + downloads:** re-enable Wi-Fi → **Profile → Content
+   Packages** (or Settings → Content Packages). With a real `catalog.json`
+   configured you'll see **Available** items; tap **Download** to watch progress,
+   verification, and install; installed items show **Installed**, and a newer
+   catalog version shows **Update available** → **Update**. On mobile data (with
+   Wi-Fi-only on) it must say "Wi-Fi required for content download".
+6. **Updates & safety:** publish a higher `version` in the catalog → the item
+   shows **Update available**. A failed/corrupt update must keep the previous
+   installed version working (verified in tests).
+
 ## Replacing the demo content
 
 All sample content lives in `lib/data/seed/demo_content.dart` as trilingual
