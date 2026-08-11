@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import '../database/app_database.dart';
 import 'audio_store.dart';
@@ -269,8 +270,12 @@ class ContentPackageDownloadService {
     var attempt = 0;
     while (true) {
       attempt++;
-      final existing = List<int>.from(await partialStore.read(meta.packageId));
-      final buffer = <int>[...existing];
+      // Accumulate into a compact byte buffer (Uint8List-backed), NOT a
+      // growable List<int> of boxed integers, so a large package does not
+      // balloon in RAM on a low-end device.
+      final existing = await partialStore.read(meta.packageId);
+      final builder = BytesBuilder(copy: false);
+      if (existing.isNotEmpty) builder.add(existing);
       try {
         final resp = await httpClient.openStream(
           meta.downloadUrl,
@@ -281,26 +286,26 @@ class ContentPackageDownloadService {
         }
         // If we asked to resume but the server ignored ranges, restart clean.
         if (existing.isNotEmpty && resp.statusCode == 200) {
-          buffer.clear();
+          builder.clear();
         }
         final total = resp.totalBytes ?? meta.sizeBytes;
         emit(PackageDownload(
           packageId: meta.packageId,
           phase: DownloadPhase.downloading,
-          bytesReceived: buffer.length,
+          bytesReceived: builder.length,
           totalBytes: total,
         ));
         var chunkIndex = 0;
         await for (final chunk in resp.stream) {
           if (cancelToken?.isCanceled ?? false) {
-            await partialStore.write(meta.packageId, buffer);
+            await partialStore.write(meta.packageId, builder.toBytes());
             throw const _CanceledException();
           }
-          buffer.addAll(chunk);
+          builder.add(chunk);
           emit(PackageDownload(
             packageId: meta.packageId,
             phase: DownloadPhase.downloading,
-            bytesReceived: buffer.length,
+            bytesReceived: builder.length,
             totalBytes: total,
           ));
           // Periodically re-check connectivity so the download pauses safely if
@@ -315,27 +320,27 @@ class ContentPackageDownloadService {
                 (net == ConnectivityStatus.mobile &&
                     (wifiOnly || !allowMobileData));
             if (blocked) {
-              await partialStore.write(meta.packageId, buffer);
+              await partialStore.write(meta.packageId, builder.toBytes());
               throw const _PausedException();
             }
           }
         }
         // Sanity: incomplete stream vs. declared size → treat as interrupted.
-        if (resp.totalBytes != null && buffer.length < resp.totalBytes!) {
+        if (resp.totalBytes != null && builder.length < resp.totalBytes!) {
           throw _DownloadFailure(DownloadError.interrupted);
         }
-        return buffer;
+        return builder.toBytes();
       } on _CanceledException {
         rethrow;
       } on _PausedException {
         rethrow;
       } on _DownloadFailure {
-        await partialStore.write(meta.packageId, buffer);
+        await partialStore.write(meta.packageId, builder.toBytes());
         if (attempt > maxRetries) rethrow;
         await Future<void>.delayed(retryDelay);
       } catch (_) {
         // Network/timeout/other → save partial and retry with backoff.
-        await partialStore.write(meta.packageId, buffer);
+        await partialStore.write(meta.packageId, builder.toBytes());
         if (attempt > maxRetries) {
           throw _DownloadFailure(DownloadError.timeout);
         }
