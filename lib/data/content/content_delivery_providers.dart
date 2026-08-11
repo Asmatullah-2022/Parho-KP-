@@ -2,13 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/catalog_config.dart';
 import '../../shared/providers/app_settings.dart';
+import '../../shared/services/file_audio_player.dart';
+import '../../shared/services/lesson_audio_service.dart';
+import '../../shared/services/tts_service.dart';
 import '../database/app_database.dart';
 import '../providers.dart';
+import 'audio_store.dart';
 import 'connectivity.dart';
+import 'connectivity_plus_service.dart';
 import 'content_package_download_service.dart';
 import 'download_http_client.dart';
 import 'package_catalog.dart';
 import 'package_manifest.dart';
+import 'production_stores.dart';
 
 /// Single configuration point for the catalog (endpoint + public key + app
 /// version). Override in `main()` for production.
@@ -33,13 +39,34 @@ final packageManifestCatalogProvider =
   return RemotePackageManifestCatalog(catalogUrl: config.catalogUrl);
 });
 
-/// The connectivity source. Mirrors the app's Offline Mode toggle; a production
-/// build would replace this with a real reachability check.
+/// The audio store for downloaded offline lesson audio (file-based on device).
+final audioStoreProvider = Provider<AudioStore>((ref) => FileAudioStore());
+
+/// Plays lesson audio: a downloaded offline audio file when present, otherwise
+/// on-device TTS (see [LessonAudioService]). Fully offline once installed.
+final lessonAudioServiceProvider = Provider<LessonAudioService>((ref) {
+  return LessonAudioService(
+    tts: ref.watch(ttsServiceProvider),
+    filePlayer: FileAudioPlayer(),
+  );
+});
+
+/// Resolves a lesson's stored `audioAsset` to a playable absolute path (or null
+/// when the file isn't installed). Offline lookup on the device.
+final resolvedLessonAudioProvider =
+    FutureProvider.family<String?, String?>((ref, audioAsset) async {
+  if (audioAsset == null || audioAsset.isEmpty) return null;
+  return ref.watch(audioStoreProvider).resolve(audioAsset);
+});
+
+/// The connectivity source. If the user forced Offline Mode we honour it;
+/// otherwise real detection via `connectivity_plus` (which fails safe to Wi-Fi
+/// when the platform channel is unavailable, e.g. in tests).
 final connectivityProvider = Provider<Connectivity>((ref) {
   final offline =
       ref.watch(settingsControllerProvider.select((s) => s.offlineMode));
-  return ManualConnectivity(
-      offline ? ConnectivityStatus.offline : ConnectivityStatus.wifi);
+  if (offline) return ManualConnectivity(ConnectivityStatus.offline);
+  return ConnectivityPlusService();
 });
 
 /// The download + install service, wired for the current (dev or prod) source.
@@ -64,7 +91,10 @@ final contentPackageDownloadServiceProvider =
     httpClient: httpClient,
     publicKeyProvider: keyProvider,
     connectivity: ref.watch(connectivityProvider),
+    audioStore: ref.watch(audioStoreProvider),
+    partialStore: FilePartialDownloadStore(),
     appVersion: config.appVersion,
+    maxRetries: config.download.maxRetries,
   );
 });
 

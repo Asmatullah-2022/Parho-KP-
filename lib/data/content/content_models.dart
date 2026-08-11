@@ -52,6 +52,7 @@ class LessonSpec {
     required this.example,
     required this.illustration,
     required this.questions,
+    this.audio,
   });
 
   factory LessonSpec.fromJson(Map<String, dynamic> json) => LessonSpec(
@@ -61,6 +62,7 @@ class LessonSpec {
             LText.fromJson(json['explanation'] as Map<String, dynamic>),
         example: LText.fromJson(json['example'] as Map<String, dynamic>),
         illustration: (json['illustration'] ?? '📘') as String,
+        audio: json['audio'] as String?,
         questions: (json['questions'] as List? ?? [])
             .map((q) => QuestionSpec.fromJson(q as Map<String, dynamic>))
             .toList(),
@@ -71,6 +73,10 @@ class LessonSpec {
   final LText explanation;
   final LText example;
   final String illustration;
+
+  /// Optional relative path (within the package) to a compressed offline audio
+  /// file for this lesson, e.g. `audio/lesson_100.mp3`. Null means "use TTS".
+  final String? audio;
   final List<QuestionSpec> questions;
 }
 

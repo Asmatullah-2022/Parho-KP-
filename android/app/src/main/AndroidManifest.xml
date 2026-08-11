@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Content delivery (Phase 7): downloading signed content packages and
+         checking Wi-Fi vs mobile data. Core learning still works fully offline;
+         these are only used for optional content downloads. No location,
+         camera, contacts, microphone or storage permissions are requested. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:label="Parho KP"
         android:name="${applicationName}"

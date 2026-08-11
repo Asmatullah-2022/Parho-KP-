@@ -49,6 +49,7 @@ class DemoPackageBuilder {
       {
         'id': 100,
         'unitId': 10,
+        'audio': 'audio/lesson_100.mp3',
         'title': {
           'en': 'Understanding Fractions',
           'ur': 'کسر کو سمجھنا',
@@ -80,6 +81,7 @@ class DemoPackageBuilder {
       {
         'id': 101,
         'unitId': 10,
+        'audio': 'audio/lesson_101.mp3',
         'title': {
           'en': 'Comparing Fractions',
           'ur': 'کسروں کا موازنہ',
@@ -111,6 +113,7 @@ class DemoPackageBuilder {
       {
         'id': 102,
         'unitId': 10,
+        'audio': 'audio/lesson_102.mp3',
         'title': {
           'en': 'Adding Fractions',
           'ur': 'کسروں کی جمع',
@@ -250,7 +253,15 @@ class DemoPackageBuilder {
     add('content/units.json', units);
     add('content/lessons.json', lessons);
     add('content/questions.json', questions);
-    // audio/ and images/ are optional and omitted from the demo package.
+
+    // Tiny placeholder audio files so the offline-audio pipeline (extract →
+    // store → resolve) is exercised. A real package ships compressed speech
+    // (e.g. ~mono 32–48 kbps MP3) sized for fast download and low storage.
+    for (final id in [100, 101, 102]) {
+      final bytes = utf8.encode('DEMO-AUDIO-$id');
+      archive.addFile(
+          ArchiveFile('audio/lesson_$id.mp3', bytes.length, bytes));
+    }
 
     final zipped = ZipEncoder().encode(archive);
     if (zipped == null) {

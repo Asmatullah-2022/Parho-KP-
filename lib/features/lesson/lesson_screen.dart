@@ -152,6 +152,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   text: readAloud,
                   label: l10n.listenToLesson,
                   filled: true,
+                  audioAsset: lesson.audioAsset,
                 ),
                 const SizedBox(height: 12),
                 SecondaryButton(

@@ -79,6 +79,25 @@ breaking the fully-offline experience or adding heavy dependencies:
   for a teacher device to collect progress from nearby student devices over a
   **local** link (Wi-Fi Direct / hotspot / Bluetooth), architecture-only today.
 
+### Phase 7 — production catalog + offline audio
+
+- **Production catalog config** — one config point (`CatalogConfig.production`,
+  `useMockHost:false`) with a configurable HTTPS catalog URL and the public key
+  injected via `--dart-define`; the dev mock host stays for testing.
+- **Real connectivity** — `connectivity_plus` behind the `Connectivity`
+  interface (fails safe to Wi-Fi in tests); downloads **pause** if Wi-Fi drops
+  mid-stream and **resume** from the saved partial when it returns.
+- **File-based downloads** — partial downloads stream to a **temporary file**
+  (not RAM) and are only imported after verification; the installed version is
+  never replaced by an unverified download.
+- **Offline audio** — packages can ship `audio/lesson_*.mp3`; the importer
+  records each lesson's `audioAsset`, files are stored on disk, and the lesson's
+  **Listen** button plays the downloaded audio (falling back to TTS). Audio is
+  streamed by the platform — never preloaded into memory.
+- **Signing tools** — `tool/generate_keys.dart` and `tool/sign_package.dart`
+  produce the key pair, ZIP, SHA-256, Ed25519 signature and manifest entry. The
+  private key is read only from `PARHO_PRIVATE_KEY` — never from source or repo.
+
 ## Tech stack
 
 | Concern        | Choice                                  |
@@ -94,6 +113,8 @@ breaking the fully-offline experience or adding heavy dependencies:
 | Integrity      | `crypto` (SHA-256)                       |
 | Authenticity   | `cryptography` (Ed25519, public key)    |
 | Packages       | `archive` (ZIP, pure Dart)              |
+| Connectivity   | `connectivity_plus` (Wi-Fi/mobile/offline) |
+| Offline audio  | `audioplayers` (file playback, lazy)    |
 
 ## Project structure (feature-first)
 
@@ -348,6 +369,98 @@ changes.
 - `flutter test test/content_packages_widget_test.dart` drives the UI:
   Available → Download → (verify) → Installed, then confirms the content is
   imported into the local database.
+
+## Production deployment guide (Phase 7)
+
+This is the step-by-step for shipping real signed content and offline audio.
+**Never commit the private key.**
+
+### 1. Create a package
+
+Lay out the package directory in the production format:
+
+```
+grade5_math_ur_v1/
+  manifest.json                 # { packageId, grade, subject, language, version, isDemo:false }
+  content/subjects.json
+  content/units.json
+  content/lessons.json          # a lesson may set "audio": "audio/lesson_100.mp3"
+  content/questions.json
+  audio/lesson_100.mp3          # compressed speech (mono, ~32–48 kbps MP3)
+  images/…                      # optional
+```
+
+Keep audio small: mono, low-bitrate MP3 sized for fast download and low storage.
+See `lib/data/content/demo_package_builder.dart` for a complete worked example.
+
+### 2–5. Generate manifest, checksum, sign — one command
+
+```bash
+# One-time: create the signing key pair.
+dart run tool/generate_keys.dart
+#   → prints PUBLIC key (ships in the app) and PRIVATE key SEED (store securely)
+
+# Package + SHA-256 + Ed25519 signature + manifest entry:
+export PARHO_PRIVATE_KEY='<base64 private seed from a secret manager>'
+dart run tool/sign_package.dart \
+  --dir build/packages/grade5_math_ur_v1 \
+  --out build/packages/grade5_math_ur_v1.zip \
+  --package-id grade5_math_ur_v1 --grade 5 --subject math \
+  --language ur --version 1 \
+  --url https://cdn.example.org/parho-kp/grade5_math_ur_v1.zip
+#   → writes the .zip and prints the manifest entry (sha256 + signature)
+```
+
+`sign_package.dart` reads the private key **only** from `PARHO_PRIVATE_KEY` — it
+is never stored in source, logs, or the repo.
+
+**Where the private key lives:** a secret manager (e.g. cloud KMS/Secrets) or an
+offline signing machine. It must never enter the repository, the APK, config
+files, or logs. The app ships **only the public key**.
+
+### 6–7. Upload catalog.json and package ZIPs
+
+Assemble `catalog.json` from the printed manifest entries:
+
+```json
+{ "manifestVersion": 1, "packages": [ /* one entry per package */ ] }
+```
+
+Upload `catalog.json` and every `*.zip` to any static HTTPS host / CDN.
+
+### 8. How the app verifies packages
+
+On download the app: fetches the manifest → downloads the ZIP (Wi-Fi, resumable)
+→ verifies **SHA-256** → verifies the **Ed25519 signature** with the bundled
+public key → validates the ZIP structure → imports into SQLite (transactional)
+→ stores audio to disk → marks installed → deletes the temp download. If any
+step fails, nothing is installed and the previous version keeps working.
+
+Point the app at production via the single config point
+(`lib/core/config/catalog_config.dart` → `CatalogConfig.production`), e.g.:
+
+```bash
+flutter build apk --release \
+  --dart-define=PARHO_CATALOG_URL=https://cdn.example.org/parho-kp/catalog.json \
+  --dart-define=PARHO_PUBLIC_KEY=<base64 public key>
+# and set useMockHost:false for the production config in main().
+```
+
+### 9. Test offline learning
+
+1. Install a package over Wi-Fi from **Content Packages**.
+2. Enable **Offline Mode** in Settings (or turn off the network).
+3. Open a lesson → read it → tap **Listen** (plays the downloaded audio, or
+   falls back to TTS) → take the quiz → save progress → view progress.
+   Everything works with no internet.
+
+### 10. Build the release APK
+
+```bash
+flutter build apk --release   # → build/app/outputs/flutter-apk/app-release.apk
+```
+
+Requires the Android SDK (see the note under **Building the APK**).
 
 ## Sync (low-bandwidth, offline-first)
 

@@ -17,6 +17,14 @@ class ContentImporter {
   /// package throws [ContentValidationException] and leaves the DB untouched.
   final ContentValidator validator;
 
+  /// Resolves a lesson's stored audio path. When an [audioPrefix] (usually the
+  /// packageId) is given, the relative in-package path is namespaced so audio
+  /// from different packages never collides on disk.
+  String? _audioAssetPath(String? audio, String? prefix) {
+    if (audio == null || audio.isEmpty) return null;
+    return prefix == null || prefix.isEmpty ? audio : '$prefix/$audio';
+  }
+
   /// Imports a package parsed from JSON text.
   ///
   /// The JSON is validated first; an invalid or malformed package throws
@@ -33,6 +41,7 @@ class ContentImporter {
   Future<void> importPackage(
     ContentPackage pkg, {
     bool replaceGrade = false,
+    String? audioPrefix,
   }) async {
     // Validate again so callers that build a package in-memory are also safe.
     validator.validate(pkg);
@@ -82,6 +91,7 @@ class ContentImporter {
                     exampleUr: lesson.example.ur,
                     examplePs: lesson.example.ps,
                     illustration: lesson.illustration,
+                    audioAsset: Value(_audioAssetPath(lesson.audio, audioPrefix)),
                     sortOrder: Value(li),
                     isDemo: Value(pkg.isDemo),
                   ),

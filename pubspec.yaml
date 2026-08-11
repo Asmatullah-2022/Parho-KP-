@@ -41,6 +41,11 @@ dependencies:
   cryptography: ^2.7.0  # Ed25519 signature verification (public key only in app)
   archive: ^3.6.1       # ZIP package reading (offline)
 
+  # Production runtime (Phase 7). Used only behind interfaces / lazily, so the
+  # app stays testable and offline-first:
+  connectivity_plus: ^6.0.0  # real Wi-Fi / mobile / offline detection
+  audioplayers: ^6.1.0       # play compressed offline lesson audio (file-based)
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

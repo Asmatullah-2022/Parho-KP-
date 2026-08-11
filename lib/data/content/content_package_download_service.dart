@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../database/app_database.dart';
+import 'audio_store.dart';
 import 'content_importer.dart';
 import 'content_validation.dart';
 import 'connectivity.dart';
@@ -95,9 +96,11 @@ class ContentPackageDownloadService {
     Connectivity? connectivity,
     this.storageProbe = const UnknownStorageProbe(),
     PartialDownloadStore? partialStore,
+    this.audioStore,
     this.appVersion = '1.0.0',
     this.maxRetries = 3,
     this.retryDelay = const Duration(milliseconds: 200),
+    this.connectivityCheckEveryChunks = 8,
   })  : partialStore = partialStore ?? InMemoryPartialStore(),
         verifier = verifier ?? PackageVerifier(),
         connectivity = connectivity ?? ManualConnectivity();
@@ -110,9 +113,17 @@ class ContentPackageDownloadService {
   final Connectivity connectivity;
   final StorageProbe storageProbe;
   final PartialDownloadStore partialStore;
+
+  /// Optional store for offline lesson audio. When present, a package's audio
+  /// files are persisted to disk after successful verification + import.
+  final AudioStore? audioStore;
   final String appVersion;
   final int maxRetries;
   final Duration retryDelay;
+
+  /// How often (in downloaded chunks) to re-check connectivity mid-stream so a
+  /// download can pause safely if Wi-Fi drops. Higher = less overhead.
+  final int connectivityCheckEveryChunks;
 
   /// Downloads and installs [meta]. Emits progress via [onProgress]. Returns the
   /// final outcome. Never throws for the expected failure cases — they are
@@ -156,14 +167,25 @@ class ContentPackageDownloadService {
       return fail(DownloadError.insufficientStorage);
     }
 
-    // 4) Download (resumable + retry + cancel).
+    // 4) Download (resumable + retry + cancel + pause on Wi-Fi loss).
     List<int> bytes;
     try {
-      bytes = await _download(meta, emit, cancelToken);
+      bytes = await _download(
+        meta,
+        emit,
+        cancelToken,
+        wifiOnly: wifiOnly,
+        allowMobileData: allowMobileData,
+      );
     } on _CanceledException {
       emit(state.copyWith(phase: DownloadPhase.canceled));
       return const PackageInstallOutcome(
           phase: DownloadPhase.canceled, error: DownloadError.none);
+    } on _PausedException {
+      // Wi-Fi dropped mid-download — partial saved; resume later.
+      emit(state.copyWith(phase: DownloadPhase.paused));
+      return const PackageInstallOutcome(
+          phase: DownloadPhase.paused, error: DownloadError.none);
     } on _DownloadFailure catch (e) {
       return fail(e.error);
     }
@@ -202,7 +224,17 @@ class ContentPackageDownloadService {
     try {
       final importer = ContentImporter(db);
       // Transactional replace — a failure rolls back, keeping the old version.
-      await importer.importPackage(read.package, replaceGrade: true);
+      await importer.importPackage(
+        read.package,
+        replaceGrade: true,
+        audioPrefix: read.packageId,
+      );
+      // Persist offline audio to disk (streamed; never held in RAM long-term).
+      // Only after the DB import succeeded, so a failed import never leaves
+      // orphaned audio for a version that isn't installed.
+      if (read.hasAudio && audioStore != null) {
+        await audioStore!.saveAll(read.packageId, read.audioFiles);
+      }
       await db.upsertInstalledPackage(
         packageId: read.packageId,
         grade: read.grade,
@@ -230,8 +262,10 @@ class ContentPackageDownloadService {
   Future<List<int>> _download(
     PackageMetadata meta,
     void Function(PackageDownload) emit,
-    CancelToken? cancelToken,
-  ) async {
+    CancelToken? cancelToken, {
+    required bool wifiOnly,
+    required bool allowMobileData,
+  }) async {
     var attempt = 0;
     while (true) {
       attempt++;
@@ -256,6 +290,7 @@ class ContentPackageDownloadService {
           bytesReceived: buffer.length,
           totalBytes: total,
         ));
+        var chunkIndex = 0;
         await for (final chunk in resp.stream) {
           if (cancelToken?.isCanceled ?? false) {
             await partialStore.write(meta.packageId, buffer);
@@ -268,6 +303,22 @@ class ContentPackageDownloadService {
             bytesReceived: buffer.length,
             totalBytes: total,
           ));
+          // Periodically re-check connectivity so the download pauses safely if
+          // Wi-Fi disappears mid-stream (rather than silently switching to
+          // mobile data or corrupting the package). The bytes received so far
+          // are saved for resume.
+          chunkIndex++;
+          if (connectivityCheckEveryChunks > 0 &&
+              chunkIndex % connectivityCheckEveryChunks == 0) {
+            final net = await connectivity.status();
+            final blocked = net == ConnectivityStatus.offline ||
+                (net == ConnectivityStatus.mobile &&
+                    (wifiOnly || !allowMobileData));
+            if (blocked) {
+              await partialStore.write(meta.packageId, buffer);
+              throw const _PausedException();
+            }
+          }
         }
         // Sanity: incomplete stream vs. declared size → treat as interrupted.
         if (resp.totalBytes != null && buffer.length < resp.totalBytes!) {
@@ -275,6 +326,8 @@ class ContentPackageDownloadService {
         }
         return buffer;
       } on _CanceledException {
+        rethrow;
+      } on _PausedException {
         rethrow;
       } on _DownloadFailure {
         await partialStore.write(meta.packageId, buffer);
@@ -294,6 +347,10 @@ class ContentPackageDownloadService {
 
 class _CanceledException implements Exception {
   const _CanceledException();
+}
+
+class _PausedException implements Exception {
+  const _PausedException();
 }
 
 class _DownloadFailure implements Exception {

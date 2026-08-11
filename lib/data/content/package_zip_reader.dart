@@ -26,16 +26,24 @@ class ReadPackage {
     required this.grade,
     required this.version,
     required this.package,
-    this.hasAudio = false,
-    this.hasImages = false,
+    this.audioFiles = const {},
+    this.imageFiles = const {},
   });
 
   final String packageId;
   final int grade;
   final String version;
   final ContentPackage package;
-  final bool hasAudio;
-  final bool hasImages;
+
+  /// Extracted audio files, keyed by their in-package path (e.g.
+  /// `audio/lesson_100.mp3`). Empty when the package ships no audio.
+  final Map<String, List<int>> audioFiles;
+
+  /// Extracted image files, keyed by their in-package path.
+  final Map<String, List<int>> imageFiles;
+
+  bool get hasAudio => audioFiles.isNotEmpty;
+  bool get hasImages => imageFiles.isNotEmpty;
 }
 
 /// Reads and validates a content package archive.
@@ -76,14 +84,15 @@ class PackageZipReader {
     }
 
     final files = <String, List<int>>{};
-    var hasAudio = false;
-    var hasImages = false;
+    final audioFiles = <String, List<int>>{};
+    final imageFiles = <String, List<int>>{};
     for (final f in archive.files) {
       if (!f.isFile) continue;
       final name = f.name;
-      if (name.startsWith('audio/')) hasAudio = true;
-      if (name.startsWith('images/')) hasImages = true;
-      files[name] = f.content as List<int>;
+      final content = f.content as List<int>;
+      if (name.startsWith('audio/')) audioFiles[name] = content;
+      if (name.startsWith('images/')) imageFiles[name] = content;
+      files[name] = content;
     }
 
     for (final required in requiredFiles) {
@@ -131,8 +140,8 @@ class PackageZipReader {
       grade: grade,
       version: version,
       package: package,
-      hasAudio: hasAudio,
-      hasImages: hasImages,
+      audioFiles: audioFiles,
+      imageFiles: imageFiles,
     );
   }
 
@@ -214,6 +223,7 @@ class PackageZipReader {
             explanation: lt(l['explanation']),
             example: lt(l['example']),
             illustration: (l['illustration'] as String?) ?? '📘',
+            audio: l['audio'] as String?,
             questions: questionSpecs,
           ));
         }
