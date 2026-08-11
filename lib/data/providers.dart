@@ -1,9 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/gamification/gamification_service.dart';
+import '../features/recommendations/learning_recommendation_service.dart';
 import '../shared/providers/app_settings.dart';
+import 'accounts/account_service.dart';
+import 'content/content_package_service.dart';
 import 'database/app_database.dart';
 import 'models/view_models.dart';
 import 'repositories/learning_repository.dart';
+import 'sync/sync_service.dart';
 
 /// Holds the singleton [AppDatabase]. Overridden in `main()` with the instance
 /// created (and seeded) during bootstrap.
@@ -14,7 +19,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 final learningRepositoryProvider = Provider<LearningRepository>((ref) {
-  return LearningRepository(ref.watch(databaseProvider));
+  return LearningRepository(
+    ref.watch(databaseProvider),
+    sync: ref.watch(syncServiceProvider),
+  );
 });
 
 /// The current (single) student profile, or null if setup is incomplete.
@@ -136,3 +144,45 @@ final studentReportProvider = FutureProvider<StudentReport?>((ref) async {
 
 /// Bumped to force dependent providers to refetch after a write.
 final refreshTickProvider = StateProvider<int>((ref) => 0);
+
+// ---- Phase 5 services ------------------------------------------------------
+
+/// Deterministic, offline gamification (achievements + points).
+final gamificationServiceProvider = Provider<GamificationService>((ref) {
+  return GamificationService(ref.watch(databaseProvider));
+});
+
+/// The current student's achievements. Evaluating is idempotent — it unlocks
+/// any newly-earned achievements from local data, then returns the full state.
+final achievementsProvider = FutureProvider<
+    ({List<Achievement> unlocked, int points})>((ref) async {
+  ref.watch(refreshTickProvider);
+  final svc = ref.watch(gamificationServiceProvider);
+  final student = await ref.watch(currentStudentProvider.future);
+  if (student == null) return (unlocked: <Achievement>[], points: 0);
+  await svc.evaluate(student.id);
+  final unlocked = await svc.unlocked(student.id);
+  final points = await svc.totalPoints(student.id);
+  return (unlocked: unlocked, points: points);
+});
+
+/// Deterministic next-step recommender (Review / Practice / Next / Next unit).
+final learningRecommendationServiceProvider =
+    Provider<LearningRecommendationService>((ref) {
+  return LearningRecommendationService(ref.watch(databaseProvider));
+});
+
+/// Low-bandwidth outbound sync queue (offline-first; no backend by default).
+final syncServiceProvider = Provider<SyncService>((ref) {
+  return SyncService(ref.watch(databaseProvider));
+});
+
+/// Versioned offline content packages (Installed / Available / Update).
+final contentPackageServiceProvider = Provider<ContentPackageService>((ref) {
+  return ContentPackageService(ref.watch(databaseProvider));
+});
+
+/// Student/teacher accounts (guest-offline student by default).
+final accountServiceProvider = Provider<AccountService>((ref) {
+  return AccountService(ref.watch(databaseProvider));
+});

@@ -15,6 +15,12 @@ class Students extends Table {
   IntColumn get grade => integer()();
   TextColumn get languageCode => text().withLength(max: 4)();
   IntColumn get avatarSeed => integer().withDefault(const Constant(0))();
+
+  /// Optional school and class labels. These are the ONLY organisational
+  /// fields collected — the app never stores CNIC, address, GPS location,
+  /// phone number or family details.
+  TextColumn get school => text().nullable()();
+  TextColumn get className => text().nullable()();
   DateTimeColumn get createdAt =>
       dateTime().withDefault(currentDateAndTime)();
 }
@@ -60,6 +66,10 @@ class Lessons extends Table {
   TextColumn get exampleUr => text()();
   TextColumn get examplePs => text()();
   TextColumn get illustration => text().withLength(max: 8)();
+
+  /// Optional relative path to a compressed offline audio file bundled with a
+  /// downloaded content package. When null the app falls back to on-device TTS.
+  TextColumn get audioAsset => text().nullable()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   BoolColumn get isDemo => boolean().withDefault(const Constant(true))();
 }
@@ -179,6 +189,72 @@ class UnderstandingChecks extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// A versioned content package known to the device. Tracks metadata so the app
+/// can show Installed / Update-available status and re-import cleanly offline.
+class InstalledPackages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Stable identifier for the package, e.g. "kp-grade-5".
+  TextColumn get packageId => text()();
+  IntColumn get grade => integer()();
+  TextColumn get title => text()();
+
+  /// Semantic version string, e.g. "1.2.0". Compared to decide updates.
+  TextColumn get version => text()();
+  TextColumn get province =>
+      text().withDefault(const Constant('Khyber Pakhtunkhwa'))();
+  BoolColumn get isDemo => boolean().withDefault(const Constant(true))();
+  IntColumn get sizeBytes => integer().withDefault(const Constant(0))();
+  DateTimeColumn get installedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {packageId},
+      ];
+}
+
+/// Low-bandwidth outbound sync queue. Only anonymous learning signals
+/// (progress, quiz results, achievements) are ever queued — never personal
+/// data. Rows are retried until synced and are never dropped on failure.
+class SyncQueueRows extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// 'progress' | 'quiz' | 'achievement'.
+  TextColumn get kind => text()();
+
+  /// Compact JSON payload (small, anonymous — no name/school/personal fields).
+  TextColumn get payload => text()();
+
+  /// 'pending' | 'synced' | 'failed'.
+  TextColumn get syncStatus =>
+      text().withDefault(const Constant('pending'))();
+  IntColumn get attempts => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt =>
+      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+}
+
+/// Achievements a student has unlocked (gamification). Deterministic, with no
+/// gambling or addictive mechanics — one row per unlocked achievement.
+class Achievements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get studentId => integer()();
+
+  /// Stable achievement code, e.g. 'first_lesson'.
+  TextColumn get code => text()();
+  IntColumn get points => integer().withDefault(const Constant(0))();
+  DateTimeColumn get unlockedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {studentId, code},
+      ];
+}
+
 // ---------------------------------------------------------------------------
 // Database
 // ---------------------------------------------------------------------------
@@ -198,6 +274,9 @@ class UnderstandingChecks extends Table {
     AppSettingsRows,
     TutorMessages,
     UnderstandingChecks,
+    InstalledPackages,
+    SyncQueueRows,
+    Achievements,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -207,7 +286,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -216,6 +295,14 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) {
             await m.createTable(tutorMessages);
             await m.createTable(understandingChecks);
+          }
+          if (from < 3) {
+            await m.createTable(installedPackages);
+            await m.createTable(syncQueueRows);
+            await m.createTable(achievements);
+            await m.addColumn(students, students.school);
+            await m.addColumn(students, students.className);
+            await m.addColumn(lessons, lessons.audioAsset);
           }
         },
       );
@@ -573,6 +660,135 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  // ---- content packages --------------------------------------------------
+
+  Future<List<InstalledPackage>> allInstalledPackages() =>
+      select(installedPackages).get();
+
+  Future<InstalledPackage?> installedPackageById(String packageId) {
+    return (select(installedPackages)
+          ..where((t) => t.packageId.equals(packageId)))
+        .getSingleOrNull();
+  }
+
+  /// Records (or updates) installed-package metadata by its stable [packageId].
+  Future<void> upsertInstalledPackage({
+    required String packageId,
+    required int grade,
+    required String title,
+    required String version,
+    required String province,
+    required bool isDemo,
+    required int sizeBytes,
+  }) async {
+    final existing = await installedPackageById(packageId);
+    if (existing == null) {
+      await into(installedPackages).insert(
+        InstalledPackagesCompanion.insert(
+          packageId: packageId,
+          grade: grade,
+          title: title,
+          version: version,
+          province: Value(province),
+          isDemo: Value(isDemo),
+          sizeBytes: Value(sizeBytes),
+        ),
+      );
+    } else {
+      await (update(installedPackages)..where((t) => t.id.equals(existing.id)))
+          .write(
+        InstalledPackagesCompanion(
+          grade: Value(grade),
+          title: Value(title),
+          version: Value(version),
+          province: Value(province),
+          isDemo: Value(isDemo),
+          sizeBytes: Value(sizeBytes),
+          installedAt: Value(DateTime.now()),
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteInstalledPackage(String packageId) {
+    return (delete(installedPackages)
+          ..where((t) => t.packageId.equals(packageId)))
+        .go();
+  }
+
+  // ---- sync queue --------------------------------------------------------
+
+  Future<int> enqueueSync({required String kind, required String payload}) {
+    return into(syncQueueRows).insert(
+      SyncQueueRowsCompanion.insert(kind: kind, payload: payload),
+    );
+  }
+
+  Future<List<SyncQueueRow>> syncRowsByStatus(String status) {
+    return (select(syncQueueRows)
+          ..where((t) => t.syncStatus.equals(status))
+          ..orderBy([(t) => OrderingTerm(expression: t.id)]))
+        .get();
+  }
+
+  Future<List<SyncQueueRow>> pendingSyncRows() => syncRowsByStatus('pending');
+
+  Future<List<SyncQueueRow>> allSyncRows() => select(syncQueueRows).get();
+
+  Future<void> markSyncRow(
+    int id, {
+    required String status,
+    required int attempts,
+    bool synced = false,
+  }) {
+    return (update(syncQueueRows)..where((t) => t.id.equals(id))).write(
+      SyncQueueRowsCompanion(
+        syncStatus: Value(status),
+        attempts: Value(attempts),
+        updatedAt: Value(DateTime.now()),
+        lastSyncedAt: synced ? Value(DateTime.now()) : const Value.absent(),
+      ),
+    );
+  }
+
+  /// Re-queues failed rows for another attempt. Data is never dropped.
+  Future<void> retryFailedSyncRows() {
+    return (update(syncQueueRows)
+          ..where((t) => t.syncStatus.equals('failed')))
+        .write(const SyncQueueRowsCompanion(syncStatus: Value('pending')));
+  }
+
+  // ---- achievements ------------------------------------------------------
+
+  Future<List<Achievement>> achievementsForStudent(int studentId) {
+    return (select(achievements)
+          ..where((t) => t.studentId.equals(studentId))
+          ..orderBy([(t) => OrderingTerm(expression: t.unlockedAt)]))
+        .get();
+  }
+
+  /// Unlocks an achievement if not already unlocked. Returns true when newly
+  /// unlocked (so the UI can celebrate), false if it already existed.
+  Future<bool> unlockAchievement({
+    required int studentId,
+    required String code,
+    required int points,
+  }) async {
+    final existing = await (select(achievements)
+          ..where((t) =>
+              t.studentId.equals(studentId) & t.code.equals(code)))
+        .getSingleOrNull();
+    if (existing != null) return false;
+    await into(achievements).insert(
+      AchievementsCompanion.insert(
+        studentId: studentId,
+        code: code,
+        points: Value(points),
+      ),
+    );
+    return true;
+  }
+
   // ---- student -----------------------------------------------------------
 
   Future<Student?> currentStudent() {
@@ -587,6 +803,8 @@ class AppDatabase extends _$AppDatabase {
     required int grade,
     required String languageCode,
     int avatarSeed = 0,
+    String? school,
+    String? className,
   }) {
     return into(students).insert(
       StudentsCompanion.insert(
@@ -594,6 +812,8 @@ class AppDatabase extends _$AppDatabase {
         grade: grade,
         languageCode: languageCode,
         avatarSeed: Value(avatarSeed),
+        school: Value(school),
+        className: Value(className),
       ),
     );
   }

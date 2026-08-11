@@ -99,6 +99,12 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: () => context.go(Routes.progress),
                 ),
                 _ProfileTile(
+                  icon: Icons.emoji_events_rounded,
+                  color: AppColors.yellowDark,
+                  label: l10n.achievementsTitle,
+                  onTap: () => context.push(Routes.achievements),
+                ),
+                _ProfileTile(
                   icon: Icons.assessment_rounded,
                   color: AppColors.blueDark,
                   label: l10n.reportTitle,

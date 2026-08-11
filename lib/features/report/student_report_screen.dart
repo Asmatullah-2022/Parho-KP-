@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter/services.dart';
+
 import '../../core/router/routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/view_models.dart';
@@ -9,10 +11,48 @@ import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/utils/localized_text.dart';
 import '../../shared/widgets/widgets.dart';
+import 'report_export_service.dart';
 
 /// A simple, visual learning report for the student.
 class StudentReportScreen extends ConsumerWidget {
   const StudentReportScreen({super.key});
+
+  Future<void> _exportCsv(
+    BuildContext context,
+    AppLocalizations l10n,
+    StudentReport report,
+  ) async {
+    // Generate the CSV locally (no internet). Shown for copy/share; a future
+    // build can write it to a file or share sheet via the export service.
+    const service = ReportExportService();
+    final csv = service.studentReportCsv(report);
+    await Clipboard.setData(ClipboardData(text: csv));
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.reportExportCsv),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: SelectableText(csv,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.actionOk),
+          ),
+        ],
+      ),
+    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(l10n.reportCsvReady)));
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,7 +61,19 @@ class StudentReportScreen extends ConsumerWidget {
     final async = ref.watch(studentReportProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.reportTitle)),
+      appBar: AppBar(
+        title: Text(l10n.reportTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.reportExportCsv,
+            icon: const Icon(Icons.download_rounded),
+            onPressed: () {
+              final report = async.value;
+              if (report != null) _exportCsv(context, l10n, report);
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: async.when(
           loading: () => const LoadingState(),

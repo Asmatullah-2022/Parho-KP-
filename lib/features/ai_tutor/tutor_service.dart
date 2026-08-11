@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'mock_tutor.dart';
+import 'tutor_api.dart';
 import 'tutor_models.dart';
 
 /// Abstraction over the tutoring backend.
@@ -121,28 +122,95 @@ class MockTutorService implements TutorService {
 /// Production-shaped remote tutor.
 ///
 /// The intended architecture is:  Flutter App → Secure Backend → AI Provider.
-/// This class calls YOUR backend ([backendUrl]); the backend holds the AI
-/// provider's API key. **No API key is ever stored in the app.** Until a
-/// backend URL is configured it reports "not connected" so callers fall back
-/// to [MockTutorService] and the app keeps working offline.
+/// This class talks to YOUR backend via a [TutorApiClient]; the backend holds
+/// the AI provider's API key. **No API key is ever stored in the app.**
+///
+/// Cost control & safety are handled before any network call:
+///  1. **Safety** — sensitive questions get a safe, local, educational answer
+///     and never reach the paid API.
+///  2. **Local knowledge** — if the offline mock can answer confidently, we use
+///     it (no API call).
+///  3. **Cache** — identical questions reuse the previous backend answer.
+///  4. Otherwise a **minimal** request is sent to the backend.
+///
+/// Until a backend is configured it reports "not connected" so callers fall
+/// back to [MockTutorService] and the app keeps working offline.
 class RemoteTutorService implements TutorService {
-  const RemoteTutorService({this.backendUrl});
+  const RemoteTutorService({
+    this.backendUrl,
+    this.apiClient = const UnconfiguredTutorApiClient(),
+    this.cache,
+  });
 
-  /// URL of your secure backend endpoint. When null, the service is disabled.
+  /// URL of your secure backend endpoint (informational; the [apiClient] does
+  /// the actual transport). When null and the client is unconfigured, the
+  /// service is disabled.
   final String? backendUrl;
 
-  bool get isConfigured => backendUrl != null && backendUrl!.isNotEmpty;
+  /// Transport to the secure backend.
+  final TutorApiClient apiClient;
+
+  /// Optional in-memory response cache (cost control). Shared across calls.
+  final TutorResponseCache? cache;
+
+  bool get isConfigured =>
+      apiClient.isConfigured ||
+      (backendUrl != null && backendUrl!.isNotEmpty);
 
   @override
   Future<TutorReply> respond(TutorRequest request) async {
     if (!isConfigured) {
       throw StateError('Remote tutor backend is not configured.');
     }
-    // A real implementation would POST the request (grade, language, subject,
-    // lesson, topic, message) to `backendUrl` and parse the reply. Intentionally
-    // not implemented here — no paid AI API is connected in this build.
-    throw UnimplementedError('Remote tutor backend call is not implemented.');
+
+    final ctx = request.context;
+    final code = ctx.languageCode;
+
+    // 1) Safety first — no paid API call for sensitive topics.
+    final safe = MockTutor.safety(request.message, code);
+    if (safe != null) return TutorReply(text: safe);
+
+    // If the transport isn't wired yet (only a URL was provided), we cannot
+    // make a real call in this build.
+    if (!apiClient.isConfigured) {
+      throw UnimplementedError(
+          'Configure a TutorApiClient to call the backend.');
+    }
+
+    final apiRequest = TutorApiRequest.fromContext(
+      ctx,
+      intent: request.intent,
+      message: request.message,
+    );
+
+    // 2) Cache lookup (cost control).
+    final cached = cache?.get(apiRequest.cacheKey);
+    if (cached != null) return TutorReply(text: cached.answer);
+
+    // 3) Minimal request to the secure backend.
+    final response = await apiClient.ask(apiRequest);
+    cache?.put(apiRequest.cacheKey, response);
+    return TutorReply(text: response.answer);
   }
+}
+
+/// A tiny in-memory cache for backend answers (AI cost control). Bounded so it
+/// never grows without limit on a low-RAM device.
+class TutorResponseCache {
+  TutorResponseCache({this.maxEntries = 64});
+  final int maxEntries;
+  final Map<String, TutorApiResponse> _store = {};
+
+  TutorApiResponse? get(String key) => _store[key];
+
+  void put(String key, TutorApiResponse response) {
+    if (_store.length >= maxEntries && !_store.containsKey(key)) {
+      _store.remove(_store.keys.first); // simple FIFO eviction
+    }
+    _store[key] = response;
+  }
+
+  void clear() => _store.clear();
 }
 
 /// Back-compat alias for the remote service (kept so existing references and

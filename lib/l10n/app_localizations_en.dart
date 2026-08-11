@@ -629,4 +629,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offlineUpdate => 'Update';
+
+  @override
+  String get profileAchievements => 'Achievements';
+
+  @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String get achievementsPointsLabel => 'Points';
+
+  @override
+  String get achievementsUnlockedLabel => 'Unlocked';
+
+  @override
+  String get achievementsLockedLabel => 'Locked';
+
+  @override
+  String get achievementsEmpty =>
+      'Complete lessons and quizzes to earn achievements.';
+
+  @override
+  String get achievementFirstLesson => 'First Lesson';
+
+  @override
+  String get achievementFirstQuiz => 'First Quiz';
+
+  @override
+  String get achievementPerfectScore => 'Perfect Score';
+
+  @override
+  String get achievementFiveLessons => '5 Lessons Completed';
+
+  @override
+  String get achievementTenLessons => '10 Lessons Completed';
+
+  @override
+  String get achievementSevenDayStreak => '7-Day Streak';
+
+  @override
+  String get reportExportCsv => 'Export CSV';
+
+  @override
+  String get reportCsvReady => 'Report saved as CSV';
 }

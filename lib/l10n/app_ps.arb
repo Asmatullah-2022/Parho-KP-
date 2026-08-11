@@ -230,5 +230,20 @@
 
   "offlinePackageSize": "د بستې اندازه",
   "offlineAvailable": "شتون لري",
-  "offlineUpdate": "تازه کول"
+  "offlineUpdate": "تازه کول",
+
+  "profileAchievements": "لاسته راوړنې",
+  "achievementsTitle": "لاسته راوړنې",
+  "achievementsPointsLabel": "پوائنټونه",
+  "achievementsUnlockedLabel": "خلاص شوي",
+  "achievementsLockedLabel": "تړل شوي",
+  "achievementsEmpty": "د لاسته راوړنو لپاره لوستونه او ازموینې بشپړې کړئ.",
+  "achievementFirstLesson": "لومړی لوست",
+  "achievementFirstQuiz": "لومړۍ ازموینه",
+  "achievementPerfectScore": "بشپړ نمرې",
+  "achievementFiveLessons": "۵ لوستونه بشپړ",
+  "achievementTenLessons": "۱۰ لوستونه بشپړ",
+  "achievementSevenDayStreak": "د ۷ ورځو لړۍ",
+  "reportExportCsv": "CSV خوندي کړئ",
+  "reportCsvReady": "راپور په CSV کې خوندي شو"
 }

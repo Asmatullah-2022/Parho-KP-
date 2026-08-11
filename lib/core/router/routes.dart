@@ -20,6 +20,7 @@ abstract final class Routes {
   static const favorites = '/favorites';
   static const search = '/search';
   static const report = '/report';
+  static const achievements = '/achievements';
   static const teacherClass = '/teacher/class'; // /teacher/class/:id
   static const teacherStudent = '/teacher/student'; // /teacher/student/:id
 

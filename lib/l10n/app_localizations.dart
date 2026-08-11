@@ -1281,6 +1281,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update'**
   String get offlineUpdate;
+
+  /// No description provided for @profileAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get profileAchievements;
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementsPointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get achievementsPointsLabel;
+
+  /// No description provided for @achievementsUnlockedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementsUnlockedLabel;
+
+  /// No description provided for @achievementsLockedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get achievementsLockedLabel;
+
+  /// No description provided for @achievementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete lessons and quizzes to earn achievements.'**
+  String get achievementsEmpty;
+
+  /// No description provided for @achievementFirstLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'First Lesson'**
+  String get achievementFirstLesson;
+
+  /// No description provided for @achievementFirstQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'First Quiz'**
+  String get achievementFirstQuiz;
+
+  /// No description provided for @achievementPerfectScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Score'**
+  String get achievementPerfectScore;
+
+  /// No description provided for @achievementFiveLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'5 Lessons Completed'**
+  String get achievementFiveLessons;
+
+  /// No description provided for @achievementTenLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'10 Lessons Completed'**
+  String get achievementTenLessons;
+
+  /// No description provided for @achievementSevenDayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'7-Day Streak'**
+  String get achievementSevenDayStreak;
+
+  /// No description provided for @reportExportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get reportExportCsv;
+
+  /// No description provided for @reportCsvReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Report saved as CSV'**
+  String get reportCsvReady;
 }
 
 class _AppLocalizationsDelegate

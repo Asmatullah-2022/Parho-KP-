@@ -67,6 +67,26 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _schoolMeta = const VerificationMeta('school');
+  @override
+  late final GeneratedColumn<String> school = GeneratedColumn<String>(
+    'school',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _classNameMeta = const VerificationMeta(
+    'className',
+  );
+  @override
+  late final GeneratedColumn<String> className = GeneratedColumn<String>(
+    'class_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -86,6 +106,8 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
     grade,
     languageCode,
     avatarSeed,
+    school,
+    className,
     createdAt,
   ];
   @override
@@ -136,6 +158,18 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
         avatarSeed.isAcceptableOrUnknown(data['avatar_seed']!, _avatarSeedMeta),
       );
     }
+    if (data.containsKey('school')) {
+      context.handle(
+        _schoolMeta,
+        school.isAcceptableOrUnknown(data['school']!, _schoolMeta),
+      );
+    }
+    if (data.containsKey('class_name')) {
+      context.handle(
+        _classNameMeta,
+        className.isAcceptableOrUnknown(data['class_name']!, _classNameMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -171,6 +205,14 @@ class $StudentsTable extends Students with TableInfo<$StudentsTable, Student> {
         DriftSqlType.int,
         data['${effectivePrefix}avatar_seed'],
       )!,
+      school: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}school'],
+      ),
+      className: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_name'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -190,6 +232,12 @@ class Student extends DataClass implements Insertable<Student> {
   final int grade;
   final String languageCode;
   final int avatarSeed;
+
+  /// Optional school and class labels. These are the ONLY organisational
+  /// fields collected — the app never stores CNIC, address, GPS location,
+  /// phone number or family details.
+  final String? school;
+  final String? className;
   final DateTime createdAt;
   const Student({
     required this.id,
@@ -197,6 +245,8 @@ class Student extends DataClass implements Insertable<Student> {
     required this.grade,
     required this.languageCode,
     required this.avatarSeed,
+    this.school,
+    this.className,
     required this.createdAt,
   });
   @override
@@ -207,6 +257,12 @@ class Student extends DataClass implements Insertable<Student> {
     map['grade'] = Variable<int>(grade);
     map['language_code'] = Variable<String>(languageCode);
     map['avatar_seed'] = Variable<int>(avatarSeed);
+    if (!nullToAbsent || school != null) {
+      map['school'] = Variable<String>(school);
+    }
+    if (!nullToAbsent || className != null) {
+      map['class_name'] = Variable<String>(className);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -218,6 +274,12 @@ class Student extends DataClass implements Insertable<Student> {
       grade: Value(grade),
       languageCode: Value(languageCode),
       avatarSeed: Value(avatarSeed),
+      school: school == null && nullToAbsent
+          ? const Value.absent()
+          : Value(school),
+      className: className == null && nullToAbsent
+          ? const Value.absent()
+          : Value(className),
       createdAt: Value(createdAt),
     );
   }
@@ -233,6 +295,8 @@ class Student extends DataClass implements Insertable<Student> {
       grade: serializer.fromJson<int>(json['grade']),
       languageCode: serializer.fromJson<String>(json['languageCode']),
       avatarSeed: serializer.fromJson<int>(json['avatarSeed']),
+      school: serializer.fromJson<String?>(json['school']),
+      className: serializer.fromJson<String?>(json['className']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -245,6 +309,8 @@ class Student extends DataClass implements Insertable<Student> {
       'grade': serializer.toJson<int>(grade),
       'languageCode': serializer.toJson<String>(languageCode),
       'avatarSeed': serializer.toJson<int>(avatarSeed),
+      'school': serializer.toJson<String?>(school),
+      'className': serializer.toJson<String?>(className),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -255,6 +321,8 @@ class Student extends DataClass implements Insertable<Student> {
     int? grade,
     String? languageCode,
     int? avatarSeed,
+    Value<String?> school = const Value.absent(),
+    Value<String?> className = const Value.absent(),
     DateTime? createdAt,
   }) => Student(
     id: id ?? this.id,
@@ -262,6 +330,8 @@ class Student extends DataClass implements Insertable<Student> {
     grade: grade ?? this.grade,
     languageCode: languageCode ?? this.languageCode,
     avatarSeed: avatarSeed ?? this.avatarSeed,
+    school: school.present ? school.value : this.school,
+    className: className.present ? className.value : this.className,
     createdAt: createdAt ?? this.createdAt,
   );
   Student copyWithCompanion(StudentsCompanion data) {
@@ -275,6 +345,8 @@ class Student extends DataClass implements Insertable<Student> {
       avatarSeed: data.avatarSeed.present
           ? data.avatarSeed.value
           : this.avatarSeed,
+      school: data.school.present ? data.school.value : this.school,
+      className: data.className.present ? data.className.value : this.className,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -287,14 +359,24 @@ class Student extends DataClass implements Insertable<Student> {
           ..write('grade: $grade, ')
           ..write('languageCode: $languageCode, ')
           ..write('avatarSeed: $avatarSeed, ')
+          ..write('school: $school, ')
+          ..write('className: $className, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, grade, languageCode, avatarSeed, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    name,
+    grade,
+    languageCode,
+    avatarSeed,
+    school,
+    className,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -304,6 +386,8 @@ class Student extends DataClass implements Insertable<Student> {
           other.grade == this.grade &&
           other.languageCode == this.languageCode &&
           other.avatarSeed == this.avatarSeed &&
+          other.school == this.school &&
+          other.className == this.className &&
           other.createdAt == this.createdAt);
 }
 
@@ -313,6 +397,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
   final Value<int> grade;
   final Value<String> languageCode;
   final Value<int> avatarSeed;
+  final Value<String?> school;
+  final Value<String?> className;
   final Value<DateTime> createdAt;
   const StudentsCompanion({
     this.id = const Value.absent(),
@@ -320,6 +406,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     this.grade = const Value.absent(),
     this.languageCode = const Value.absent(),
     this.avatarSeed = const Value.absent(),
+    this.school = const Value.absent(),
+    this.className = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   StudentsCompanion.insert({
@@ -328,6 +416,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     required int grade,
     required String languageCode,
     this.avatarSeed = const Value.absent(),
+    this.school = const Value.absent(),
+    this.className = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        grade = Value(grade),
@@ -338,6 +428,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     Expression<int>? grade,
     Expression<String>? languageCode,
     Expression<int>? avatarSeed,
+    Expression<String>? school,
+    Expression<String>? className,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -346,6 +438,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
       if (grade != null) 'grade': grade,
       if (languageCode != null) 'language_code': languageCode,
       if (avatarSeed != null) 'avatar_seed': avatarSeed,
+      if (school != null) 'school': school,
+      if (className != null) 'class_name': className,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -356,6 +450,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     Value<int>? grade,
     Value<String>? languageCode,
     Value<int>? avatarSeed,
+    Value<String?>? school,
+    Value<String?>? className,
     Value<DateTime>? createdAt,
   }) {
     return StudentsCompanion(
@@ -364,6 +460,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
       grade: grade ?? this.grade,
       languageCode: languageCode ?? this.languageCode,
       avatarSeed: avatarSeed ?? this.avatarSeed,
+      school: school ?? this.school,
+      className: className ?? this.className,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -386,6 +484,12 @@ class StudentsCompanion extends UpdateCompanion<Student> {
     if (avatarSeed.present) {
       map['avatar_seed'] = Variable<int>(avatarSeed.value);
     }
+    if (school.present) {
+      map['school'] = Variable<String>(school.value);
+    }
+    if (className.present) {
+      map['class_name'] = Variable<String>(className.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -400,6 +504,8 @@ class StudentsCompanion extends UpdateCompanion<Student> {
           ..write('grade: $grade, ')
           ..write('languageCode: $languageCode, ')
           ..write('avatarSeed: $avatarSeed, ')
+          ..write('school: $school, ')
+          ..write('className: $className, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1461,6 +1567,17 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _audioAssetMeta = const VerificationMeta(
+    'audioAsset',
+  );
+  @override
+  late final GeneratedColumn<String> audioAsset = GeneratedColumn<String>(
+    'audio_asset',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -1503,6 +1620,7 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
     exampleUr,
     examplePs,
     illustration,
+    audioAsset,
     sortOrder,
     isDemo,
   ];
@@ -1654,6 +1772,12 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
     } else if (isInserting) {
       context.missing(_illustrationMeta);
     }
+    if (data.containsKey('audio_asset')) {
+      context.handle(
+        _audioAssetMeta,
+        audioAsset.isAcceptableOrUnknown(data['audio_asset']!, _audioAssetMeta),
+      );
+    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -1735,6 +1859,10 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
         DriftSqlType.string,
         data['${effectivePrefix}illustration'],
       )!,
+      audioAsset: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_asset'],
+      ),
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -1768,6 +1896,10 @@ class Lesson extends DataClass implements Insertable<Lesson> {
   final String exampleUr;
   final String examplePs;
   final String illustration;
+
+  /// Optional relative path to a compressed offline audio file bundled with a
+  /// downloaded content package. When null the app falls back to on-device TTS.
+  final String? audioAsset;
   final int sortOrder;
   final bool isDemo;
   const Lesson({
@@ -1786,6 +1918,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     required this.exampleUr,
     required this.examplePs,
     required this.illustration,
+    this.audioAsset,
     required this.sortOrder,
     required this.isDemo,
   });
@@ -1807,6 +1940,9 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     map['example_ur'] = Variable<String>(exampleUr);
     map['example_ps'] = Variable<String>(examplePs);
     map['illustration'] = Variable<String>(illustration);
+    if (!nullToAbsent || audioAsset != null) {
+      map['audio_asset'] = Variable<String>(audioAsset);
+    }
     map['sort_order'] = Variable<int>(sortOrder);
     map['is_demo'] = Variable<bool>(isDemo);
     return map;
@@ -1829,6 +1965,9 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       exampleUr: Value(exampleUr),
       examplePs: Value(examplePs),
       illustration: Value(illustration),
+      audioAsset: audioAsset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioAsset),
       sortOrder: Value(sortOrder),
       isDemo: Value(isDemo),
     );
@@ -1855,6 +1994,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       exampleUr: serializer.fromJson<String>(json['exampleUr']),
       examplePs: serializer.fromJson<String>(json['examplePs']),
       illustration: serializer.fromJson<String>(json['illustration']),
+      audioAsset: serializer.fromJson<String?>(json['audioAsset']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       isDemo: serializer.fromJson<bool>(json['isDemo']),
     );
@@ -1878,6 +2018,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       'exampleUr': serializer.toJson<String>(exampleUr),
       'examplePs': serializer.toJson<String>(examplePs),
       'illustration': serializer.toJson<String>(illustration),
+      'audioAsset': serializer.toJson<String?>(audioAsset),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'isDemo': serializer.toJson<bool>(isDemo),
     };
@@ -1899,6 +2040,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     String? exampleUr,
     String? examplePs,
     String? illustration,
+    Value<String?> audioAsset = const Value.absent(),
     int? sortOrder,
     bool? isDemo,
   }) => Lesson(
@@ -1917,6 +2059,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     exampleUr: exampleUr ?? this.exampleUr,
     examplePs: examplePs ?? this.examplePs,
     illustration: illustration ?? this.illustration,
+    audioAsset: audioAsset.present ? audioAsset.value : this.audioAsset,
     sortOrder: sortOrder ?? this.sortOrder,
     isDemo: isDemo ?? this.isDemo,
   );
@@ -1951,6 +2094,9 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       illustration: data.illustration.present
           ? data.illustration.value
           : this.illustration,
+      audioAsset: data.audioAsset.present
+          ? data.audioAsset.value
+          : this.audioAsset,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       isDemo: data.isDemo.present ? data.isDemo.value : this.isDemo,
     );
@@ -1974,6 +2120,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           ..write('exampleUr: $exampleUr, ')
           ..write('examplePs: $examplePs, ')
           ..write('illustration: $illustration, ')
+          ..write('audioAsset: $audioAsset, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('isDemo: $isDemo')
           ..write(')'))
@@ -1997,6 +2144,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     exampleUr,
     examplePs,
     illustration,
+    audioAsset,
     sortOrder,
     isDemo,
   );
@@ -2019,6 +2167,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           other.exampleUr == this.exampleUr &&
           other.examplePs == this.examplePs &&
           other.illustration == this.illustration &&
+          other.audioAsset == this.audioAsset &&
           other.sortOrder == this.sortOrder &&
           other.isDemo == this.isDemo);
 }
@@ -2039,6 +2188,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
   final Value<String> exampleUr;
   final Value<String> examplePs;
   final Value<String> illustration;
+  final Value<String?> audioAsset;
   final Value<int> sortOrder;
   final Value<bool> isDemo;
   const LessonsCompanion({
@@ -2057,6 +2207,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     this.exampleUr = const Value.absent(),
     this.examplePs = const Value.absent(),
     this.illustration = const Value.absent(),
+    this.audioAsset = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.isDemo = const Value.absent(),
   });
@@ -2076,6 +2227,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     required String exampleUr,
     required String examplePs,
     required String illustration,
+    this.audioAsset = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.isDemo = const Value.absent(),
   }) : unitId = Value(unitId),
@@ -2108,6 +2260,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     Expression<String>? exampleUr,
     Expression<String>? examplePs,
     Expression<String>? illustration,
+    Expression<String>? audioAsset,
     Expression<int>? sortOrder,
     Expression<bool>? isDemo,
   }) {
@@ -2127,6 +2280,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
       if (exampleUr != null) 'example_ur': exampleUr,
       if (examplePs != null) 'example_ps': examplePs,
       if (illustration != null) 'illustration': illustration,
+      if (audioAsset != null) 'audio_asset': audioAsset,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (isDemo != null) 'is_demo': isDemo,
     });
@@ -2148,6 +2302,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     Value<String>? exampleUr,
     Value<String>? examplePs,
     Value<String>? illustration,
+    Value<String?>? audioAsset,
     Value<int>? sortOrder,
     Value<bool>? isDemo,
   }) {
@@ -2167,6 +2322,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
       exampleUr: exampleUr ?? this.exampleUr,
       examplePs: examplePs ?? this.examplePs,
       illustration: illustration ?? this.illustration,
+      audioAsset: audioAsset ?? this.audioAsset,
       sortOrder: sortOrder ?? this.sortOrder,
       isDemo: isDemo ?? this.isDemo,
     );
@@ -2220,6 +2376,9 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     if (illustration.present) {
       map['illustration'] = Variable<String>(illustration.value);
     }
+    if (audioAsset.present) {
+      map['audio_asset'] = Variable<String>(audioAsset.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -2247,6 +2406,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
           ..write('exampleUr: $exampleUr, ')
           ..write('examplePs: $examplePs, ')
           ..write('illustration: $illustration, ')
+          ..write('audioAsset: $audioAsset, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('isDemo: $isDemo')
           ..write(')'))
@@ -5684,6 +5844,1417 @@ class UnderstandingChecksCompanion extends UpdateCompanion<UnderstandingCheck> {
   }
 }
 
+class $InstalledPackagesTable extends InstalledPackages
+    with TableInfo<$InstalledPackagesTable, InstalledPackage> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InstalledPackagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _packageIdMeta = const VerificationMeta(
+    'packageId',
+  );
+  @override
+  late final GeneratedColumn<String> packageId = GeneratedColumn<String>(
+    'package_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<int> grade = GeneratedColumn<int>(
+    'grade',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _versionMeta = const VerificationMeta(
+    'version',
+  );
+  @override
+  late final GeneratedColumn<String> version = GeneratedColumn<String>(
+    'version',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _provinceMeta = const VerificationMeta(
+    'province',
+  );
+  @override
+  late final GeneratedColumn<String> province = GeneratedColumn<String>(
+    'province',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Khyber Pakhtunkhwa'),
+  );
+  static const VerificationMeta _isDemoMeta = const VerificationMeta('isDemo');
+  @override
+  late final GeneratedColumn<bool> isDemo = GeneratedColumn<bool>(
+    'is_demo',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_demo" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta(
+    'sizeBytes',
+  );
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _installedAtMeta = const VerificationMeta(
+    'installedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> installedAt = GeneratedColumn<DateTime>(
+    'installed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    packageId,
+    grade,
+    title,
+    version,
+    province,
+    isDemo,
+    sizeBytes,
+    installedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'installed_packages';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<InstalledPackage> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('package_id')) {
+      context.handle(
+        _packageIdMeta,
+        packageId.isAcceptableOrUnknown(data['package_id']!, _packageIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_packageIdMeta);
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+        _gradeMeta,
+        grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_gradeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('version')) {
+      context.handle(
+        _versionMeta,
+        version.isAcceptableOrUnknown(data['version']!, _versionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_versionMeta);
+    }
+    if (data.containsKey('province')) {
+      context.handle(
+        _provinceMeta,
+        province.isAcceptableOrUnknown(data['province']!, _provinceMeta),
+      );
+    }
+    if (data.containsKey('is_demo')) {
+      context.handle(
+        _isDemoMeta,
+        isDemo.isAcceptableOrUnknown(data['is_demo']!, _isDemoMeta),
+      );
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    }
+    if (data.containsKey('installed_at')) {
+      context.handle(
+        _installedAtMeta,
+        installedAt.isAcceptableOrUnknown(
+          data['installed_at']!,
+          _installedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {packageId},
+  ];
+  @override
+  InstalledPackage map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return InstalledPackage(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      packageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}package_id'],
+      )!,
+      grade: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grade'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}version'],
+      )!,
+      province: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}province'],
+      )!,
+      isDemo: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_demo'],
+      )!,
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      installedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}installed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $InstalledPackagesTable createAlias(String alias) {
+    return $InstalledPackagesTable(attachedDatabase, alias);
+  }
+}
+
+class InstalledPackage extends DataClass
+    implements Insertable<InstalledPackage> {
+  final int id;
+
+  /// Stable identifier for the package, e.g. "kp-grade-5".
+  final String packageId;
+  final int grade;
+  final String title;
+
+  /// Semantic version string, e.g. "1.2.0". Compared to decide updates.
+  final String version;
+  final String province;
+  final bool isDemo;
+  final int sizeBytes;
+  final DateTime installedAt;
+  const InstalledPackage({
+    required this.id,
+    required this.packageId,
+    required this.grade,
+    required this.title,
+    required this.version,
+    required this.province,
+    required this.isDemo,
+    required this.sizeBytes,
+    required this.installedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['package_id'] = Variable<String>(packageId);
+    map['grade'] = Variable<int>(grade);
+    map['title'] = Variable<String>(title);
+    map['version'] = Variable<String>(version);
+    map['province'] = Variable<String>(province);
+    map['is_demo'] = Variable<bool>(isDemo);
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    map['installed_at'] = Variable<DateTime>(installedAt);
+    return map;
+  }
+
+  InstalledPackagesCompanion toCompanion(bool nullToAbsent) {
+    return InstalledPackagesCompanion(
+      id: Value(id),
+      packageId: Value(packageId),
+      grade: Value(grade),
+      title: Value(title),
+      version: Value(version),
+      province: Value(province),
+      isDemo: Value(isDemo),
+      sizeBytes: Value(sizeBytes),
+      installedAt: Value(installedAt),
+    );
+  }
+
+  factory InstalledPackage.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return InstalledPackage(
+      id: serializer.fromJson<int>(json['id']),
+      packageId: serializer.fromJson<String>(json['packageId']),
+      grade: serializer.fromJson<int>(json['grade']),
+      title: serializer.fromJson<String>(json['title']),
+      version: serializer.fromJson<String>(json['version']),
+      province: serializer.fromJson<String>(json['province']),
+      isDemo: serializer.fromJson<bool>(json['isDemo']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+      installedAt: serializer.fromJson<DateTime>(json['installedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'packageId': serializer.toJson<String>(packageId),
+      'grade': serializer.toJson<int>(grade),
+      'title': serializer.toJson<String>(title),
+      'version': serializer.toJson<String>(version),
+      'province': serializer.toJson<String>(province),
+      'isDemo': serializer.toJson<bool>(isDemo),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+      'installedAt': serializer.toJson<DateTime>(installedAt),
+    };
+  }
+
+  InstalledPackage copyWith({
+    int? id,
+    String? packageId,
+    int? grade,
+    String? title,
+    String? version,
+    String? province,
+    bool? isDemo,
+    int? sizeBytes,
+    DateTime? installedAt,
+  }) => InstalledPackage(
+    id: id ?? this.id,
+    packageId: packageId ?? this.packageId,
+    grade: grade ?? this.grade,
+    title: title ?? this.title,
+    version: version ?? this.version,
+    province: province ?? this.province,
+    isDemo: isDemo ?? this.isDemo,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    installedAt: installedAt ?? this.installedAt,
+  );
+  InstalledPackage copyWithCompanion(InstalledPackagesCompanion data) {
+    return InstalledPackage(
+      id: data.id.present ? data.id.value : this.id,
+      packageId: data.packageId.present ? data.packageId.value : this.packageId,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      title: data.title.present ? data.title.value : this.title,
+      version: data.version.present ? data.version.value : this.version,
+      province: data.province.present ? data.province.value : this.province,
+      isDemo: data.isDemo.present ? data.isDemo.value : this.isDemo,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      installedAt: data.installedAt.present
+          ? data.installedAt.value
+          : this.installedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InstalledPackage(')
+          ..write('id: $id, ')
+          ..write('packageId: $packageId, ')
+          ..write('grade: $grade, ')
+          ..write('title: $title, ')
+          ..write('version: $version, ')
+          ..write('province: $province, ')
+          ..write('isDemo: $isDemo, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('installedAt: $installedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    packageId,
+    grade,
+    title,
+    version,
+    province,
+    isDemo,
+    sizeBytes,
+    installedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is InstalledPackage &&
+          other.id == this.id &&
+          other.packageId == this.packageId &&
+          other.grade == this.grade &&
+          other.title == this.title &&
+          other.version == this.version &&
+          other.province == this.province &&
+          other.isDemo == this.isDemo &&
+          other.sizeBytes == this.sizeBytes &&
+          other.installedAt == this.installedAt);
+}
+
+class InstalledPackagesCompanion extends UpdateCompanion<InstalledPackage> {
+  final Value<int> id;
+  final Value<String> packageId;
+  final Value<int> grade;
+  final Value<String> title;
+  final Value<String> version;
+  final Value<String> province;
+  final Value<bool> isDemo;
+  final Value<int> sizeBytes;
+  final Value<DateTime> installedAt;
+  const InstalledPackagesCompanion({
+    this.id = const Value.absent(),
+    this.packageId = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.title = const Value.absent(),
+    this.version = const Value.absent(),
+    this.province = const Value.absent(),
+    this.isDemo = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.installedAt = const Value.absent(),
+  });
+  InstalledPackagesCompanion.insert({
+    this.id = const Value.absent(),
+    required String packageId,
+    required int grade,
+    required String title,
+    required String version,
+    this.province = const Value.absent(),
+    this.isDemo = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.installedAt = const Value.absent(),
+  }) : packageId = Value(packageId),
+       grade = Value(grade),
+       title = Value(title),
+       version = Value(version);
+  static Insertable<InstalledPackage> custom({
+    Expression<int>? id,
+    Expression<String>? packageId,
+    Expression<int>? grade,
+    Expression<String>? title,
+    Expression<String>? version,
+    Expression<String>? province,
+    Expression<bool>? isDemo,
+    Expression<int>? sizeBytes,
+    Expression<DateTime>? installedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (packageId != null) 'package_id': packageId,
+      if (grade != null) 'grade': grade,
+      if (title != null) 'title': title,
+      if (version != null) 'version': version,
+      if (province != null) 'province': province,
+      if (isDemo != null) 'is_demo': isDemo,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (installedAt != null) 'installed_at': installedAt,
+    });
+  }
+
+  InstalledPackagesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? packageId,
+    Value<int>? grade,
+    Value<String>? title,
+    Value<String>? version,
+    Value<String>? province,
+    Value<bool>? isDemo,
+    Value<int>? sizeBytes,
+    Value<DateTime>? installedAt,
+  }) {
+    return InstalledPackagesCompanion(
+      id: id ?? this.id,
+      packageId: packageId ?? this.packageId,
+      grade: grade ?? this.grade,
+      title: title ?? this.title,
+      version: version ?? this.version,
+      province: province ?? this.province,
+      isDemo: isDemo ?? this.isDemo,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      installedAt: installedAt ?? this.installedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (packageId.present) {
+      map['package_id'] = Variable<String>(packageId.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<int>(grade.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<String>(version.value);
+    }
+    if (province.present) {
+      map['province'] = Variable<String>(province.value);
+    }
+    if (isDemo.present) {
+      map['is_demo'] = Variable<bool>(isDemo.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (installedAt.present) {
+      map['installed_at'] = Variable<DateTime>(installedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InstalledPackagesCompanion(')
+          ..write('id: $id, ')
+          ..write('packageId: $packageId, ')
+          ..write('grade: $grade, ')
+          ..write('title: $title, ')
+          ..write('version: $version, ')
+          ..write('province: $province, ')
+          ..write('isDemo: $isDemo, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('installedAt: $installedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncQueueRowsTable extends SyncQueueRows
+    with TableInfo<$SyncQueueRowsTable, SyncQueueRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncQueueRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+    'sync_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+    'attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    payload,
+    syncStatus,
+    attempts,
+    createdAt,
+    updatedAt,
+    lastSyncedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_queue_rows';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncQueueRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncQueueRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncQueueRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_status'],
+      )!,
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
+    );
+  }
+
+  @override
+  $SyncQueueRowsTable createAlias(String alias) {
+    return $SyncQueueRowsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncQueueRow extends DataClass implements Insertable<SyncQueueRow> {
+  final int id;
+
+  /// 'progress' | 'quiz' | 'achievement'.
+  final String kind;
+
+  /// Compact JSON payload (small, anonymous — no name/school/personal fields).
+  final String payload;
+
+  /// 'pending' | 'synced' | 'failed'.
+  final String syncStatus;
+  final int attempts;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? lastSyncedAt;
+  const SyncQueueRow({
+    required this.id,
+    required this.kind,
+    required this.payload,
+    required this.syncStatus,
+    required this.attempts,
+    required this.createdAt,
+    required this.updatedAt,
+    this.lastSyncedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    map['payload'] = Variable<String>(payload);
+    map['sync_status'] = Variable<String>(syncStatus);
+    map['attempts'] = Variable<int>(attempts);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
+    return map;
+  }
+
+  SyncQueueRowsCompanion toCompanion(bool nullToAbsent) {
+    return SyncQueueRowsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      payload: Value(payload),
+      syncStatus: Value(syncStatus),
+      attempts: Value(attempts),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
+    );
+  }
+
+  factory SyncQueueRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncQueueRow(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      payload: serializer.fromJson<String>(json['payload']),
+      syncStatus: serializer.fromJson<String>(json['syncStatus']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'payload': serializer.toJson<String>(payload),
+      'syncStatus': serializer.toJson<String>(syncStatus),
+      'attempts': serializer.toJson<int>(attempts),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
+    };
+  }
+
+  SyncQueueRow copyWith({
+    int? id,
+    String? kind,
+    String? payload,
+    String? syncStatus,
+    int? attempts,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
+  }) => SyncQueueRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    payload: payload ?? this.payload,
+    syncStatus: syncStatus ?? this.syncStatus,
+    attempts: attempts ?? this.attempts,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
+  );
+  SyncQueueRow copyWithCompanion(SyncQueueRowsCompanion data) {
+    return SyncQueueRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('payload: $payload, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('attempts: $attempts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    kind,
+    payload,
+    syncStatus,
+    attempts,
+    createdAt,
+    updatedAt,
+    lastSyncedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncQueueRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.payload == this.payload &&
+          other.syncStatus == this.syncStatus &&
+          other.attempts == this.attempts &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.lastSyncedAt == this.lastSyncedAt);
+}
+
+class SyncQueueRowsCompanion extends UpdateCompanion<SyncQueueRow> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<String> payload;
+  final Value<String> syncStatus;
+  final Value<int> attempts;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> lastSyncedAt;
+  const SyncQueueRowsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+  });
+  SyncQueueRowsCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    required String payload,
+    this.syncStatus = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
+  }) : kind = Value(kind),
+       payload = Value(payload);
+  static Insertable<SyncQueueRow> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<String>? payload,
+    Expression<String>? syncStatus,
+    Expression<int>? attempts,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? lastSyncedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (payload != null) 'payload': payload,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (attempts != null) 'attempts': attempts,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
+    });
+  }
+
+  SyncQueueRowsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<String>? payload,
+    Value<String>? syncStatus,
+    Value<int>? attempts,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? lastSyncedAt,
+  }) {
+    return SyncQueueRowsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      payload: payload ?? this.payload,
+      syncStatus: syncStatus ?? this.syncStatus,
+      attempts: attempts ?? this.attempts,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('payload: $payload, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('attempts: $attempts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AchievementsTable extends Achievements
+    with TableInfo<$AchievementsTable, Achievement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AchievementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<int> studentId = GeneratedColumn<int>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+    'code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pointsMeta = const VerificationMeta('points');
+  @override
+  late final GeneratedColumn<int> points = GeneratedColumn<int>(
+    'points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _unlockedAtMeta = const VerificationMeta(
+    'unlockedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> unlockedAt = GeneratedColumn<DateTime>(
+    'unlocked_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    studentId,
+    code,
+    points,
+    unlockedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'achievements';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Achievement> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('code')) {
+      context.handle(
+        _codeMeta,
+        code.isAcceptableOrUnknown(data['code']!, _codeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_codeMeta);
+    }
+    if (data.containsKey('points')) {
+      context.handle(
+        _pointsMeta,
+        points.isAcceptableOrUnknown(data['points']!, _pointsMeta),
+      );
+    }
+    if (data.containsKey('unlocked_at')) {
+      context.handle(
+        _unlockedAtMeta,
+        unlockedAt.isAcceptableOrUnknown(data['unlocked_at']!, _unlockedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {studentId, code},
+  ];
+  @override
+  Achievement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Achievement(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}student_id'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      points: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}points'],
+      )!,
+      unlockedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}unlocked_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AchievementsTable createAlias(String alias) {
+    return $AchievementsTable(attachedDatabase, alias);
+  }
+}
+
+class Achievement extends DataClass implements Insertable<Achievement> {
+  final int id;
+  final int studentId;
+
+  /// Stable achievement code, e.g. 'first_lesson'.
+  final String code;
+  final int points;
+  final DateTime unlockedAt;
+  const Achievement({
+    required this.id,
+    required this.studentId,
+    required this.code,
+    required this.points,
+    required this.unlockedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['student_id'] = Variable<int>(studentId);
+    map['code'] = Variable<String>(code);
+    map['points'] = Variable<int>(points);
+    map['unlocked_at'] = Variable<DateTime>(unlockedAt);
+    return map;
+  }
+
+  AchievementsCompanion toCompanion(bool nullToAbsent) {
+    return AchievementsCompanion(
+      id: Value(id),
+      studentId: Value(studentId),
+      code: Value(code),
+      points: Value(points),
+      unlockedAt: Value(unlockedAt),
+    );
+  }
+
+  factory Achievement.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Achievement(
+      id: serializer.fromJson<int>(json['id']),
+      studentId: serializer.fromJson<int>(json['studentId']),
+      code: serializer.fromJson<String>(json['code']),
+      points: serializer.fromJson<int>(json['points']),
+      unlockedAt: serializer.fromJson<DateTime>(json['unlockedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'studentId': serializer.toJson<int>(studentId),
+      'code': serializer.toJson<String>(code),
+      'points': serializer.toJson<int>(points),
+      'unlockedAt': serializer.toJson<DateTime>(unlockedAt),
+    };
+  }
+
+  Achievement copyWith({
+    int? id,
+    int? studentId,
+    String? code,
+    int? points,
+    DateTime? unlockedAt,
+  }) => Achievement(
+    id: id ?? this.id,
+    studentId: studentId ?? this.studentId,
+    code: code ?? this.code,
+    points: points ?? this.points,
+    unlockedAt: unlockedAt ?? this.unlockedAt,
+  );
+  Achievement copyWithCompanion(AchievementsCompanion data) {
+    return Achievement(
+      id: data.id.present ? data.id.value : this.id,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      code: data.code.present ? data.code.value : this.code,
+      points: data.points.present ? data.points.value : this.points,
+      unlockedAt: data.unlockedAt.present
+          ? data.unlockedAt.value
+          : this.unlockedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Achievement(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('code: $code, ')
+          ..write('points: $points, ')
+          ..write('unlockedAt: $unlockedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, studentId, code, points, unlockedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Achievement &&
+          other.id == this.id &&
+          other.studentId == this.studentId &&
+          other.code == this.code &&
+          other.points == this.points &&
+          other.unlockedAt == this.unlockedAt);
+}
+
+class AchievementsCompanion extends UpdateCompanion<Achievement> {
+  final Value<int> id;
+  final Value<int> studentId;
+  final Value<String> code;
+  final Value<int> points;
+  final Value<DateTime> unlockedAt;
+  const AchievementsCompanion({
+    this.id = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.code = const Value.absent(),
+    this.points = const Value.absent(),
+    this.unlockedAt = const Value.absent(),
+  });
+  AchievementsCompanion.insert({
+    this.id = const Value.absent(),
+    required int studentId,
+    required String code,
+    this.points = const Value.absent(),
+    this.unlockedAt = const Value.absent(),
+  }) : studentId = Value(studentId),
+       code = Value(code);
+  static Insertable<Achievement> custom({
+    Expression<int>? id,
+    Expression<int>? studentId,
+    Expression<String>? code,
+    Expression<int>? points,
+    Expression<DateTime>? unlockedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (studentId != null) 'student_id': studentId,
+      if (code != null) 'code': code,
+      if (points != null) 'points': points,
+      if (unlockedAt != null) 'unlocked_at': unlockedAt,
+    });
+  }
+
+  AchievementsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? studentId,
+    Value<String>? code,
+    Value<int>? points,
+    Value<DateTime>? unlockedAt,
+  }) {
+    return AchievementsCompanion(
+      id: id ?? this.id,
+      studentId: studentId ?? this.studentId,
+      code: code ?? this.code,
+      points: points ?? this.points,
+      unlockedAt: unlockedAt ?? this.unlockedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<int>(studentId.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (points.present) {
+      map['points'] = Variable<int>(points.value);
+    }
+    if (unlockedAt.present) {
+      map['unlocked_at'] = Variable<DateTime>(unlockedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AchievementsCompanion(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('code: $code, ')
+          ..write('points: $points, ')
+          ..write('unlockedAt: $unlockedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5703,6 +7274,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TutorMessagesTable tutorMessages = $TutorMessagesTable(this);
   late final $UnderstandingChecksTable understandingChecks =
       $UnderstandingChecksTable(this);
+  late final $InstalledPackagesTable installedPackages =
+      $InstalledPackagesTable(this);
+  late final $SyncQueueRowsTable syncQueueRows = $SyncQueueRowsTable(this);
+  late final $AchievementsTable achievements = $AchievementsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5721,6 +7296,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     appSettingsRows,
     tutorMessages,
     understandingChecks,
+    installedPackages,
+    syncQueueRows,
+    achievements,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -5818,6 +7396,8 @@ typedef $$StudentsTableCreateCompanionBuilder =
       required int grade,
       required String languageCode,
       Value<int> avatarSeed,
+      Value<String?> school,
+      Value<String?> className,
       Value<DateTime> createdAt,
     });
 typedef $$StudentsTableUpdateCompanionBuilder =
@@ -5827,6 +7407,8 @@ typedef $$StudentsTableUpdateCompanionBuilder =
       Value<int> grade,
       Value<String> languageCode,
       Value<int> avatarSeed,
+      Value<String?> school,
+      Value<String?> className,
       Value<DateTime> createdAt,
     });
 
@@ -5920,6 +7502,16 @@ class $$StudentsTableFilterComposer
 
   ColumnFilters<int> get avatarSeed => $composableBuilder(
     column: $table.avatarSeed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get school => $composableBuilder(
+    column: $table.school,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get className => $composableBuilder(
+    column: $table.className,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6038,6 +7630,16 @@ class $$StudentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get school => $composableBuilder(
+    column: $table.school,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get className => $composableBuilder(
+    column: $table.className,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -6071,6 +7673,12 @@ class $$StudentsTableAnnotationComposer
     column: $table.avatarSeed,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get school =>
+      $composableBuilder(column: $table.school, builder: (column) => column);
+
+  GeneratedColumn<String> get className =>
+      $composableBuilder(column: $table.className, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -6188,6 +7796,8 @@ class $$StudentsTableTableManager
                 Value<int> grade = const Value.absent(),
                 Value<String> languageCode = const Value.absent(),
                 Value<int> avatarSeed = const Value.absent(),
+                Value<String?> school = const Value.absent(),
+                Value<String?> className = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => StudentsCompanion(
                 id: id,
@@ -6195,6 +7805,8 @@ class $$StudentsTableTableManager
                 grade: grade,
                 languageCode: languageCode,
                 avatarSeed: avatarSeed,
+                school: school,
+                className: className,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -6204,6 +7816,8 @@ class $$StudentsTableTableManager
                 required int grade,
                 required String languageCode,
                 Value<int> avatarSeed = const Value.absent(),
+                Value<String?> school = const Value.absent(),
+                Value<String?> className = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => StudentsCompanion.insert(
                 id: id,
@@ -6211,6 +7825,8 @@ class $$StudentsTableTableManager
                 grade: grade,
                 languageCode: languageCode,
                 avatarSeed: avatarSeed,
+                school: school,
+                className: className,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -7186,6 +8802,7 @@ typedef $$LessonsTableCreateCompanionBuilder =
       required String exampleUr,
       required String examplePs,
       required String illustration,
+      Value<String?> audioAsset,
       Value<int> sortOrder,
       Value<bool> isDemo,
     });
@@ -7206,6 +8823,7 @@ typedef $$LessonsTableUpdateCompanionBuilder =
       Value<String> exampleUr,
       Value<String> examplePs,
       Value<String> illustration,
+      Value<String?> audioAsset,
       Value<int> sortOrder,
       Value<bool> isDemo,
     });
@@ -7380,6 +8998,11 @@ class $$LessonsTableFilterComposer
 
   ColumnFilters<String> get illustration => $composableBuilder(
     column: $table.illustration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get audioAsset => $composableBuilder(
+    column: $table.audioAsset,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7596,6 +9219,11 @@ class $$LessonsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get audioAsset => $composableBuilder(
+    column: $table.audioAsset,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -7692,6 +9320,11 @@ class $$LessonsTableAnnotationComposer
 
   GeneratedColumn<String> get illustration => $composableBuilder(
     column: $table.illustration,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get audioAsset => $composableBuilder(
+    column: $table.audioAsset,
     builder: (column) => column,
   );
 
@@ -7874,6 +9507,7 @@ class $$LessonsTableTableManager
                 Value<String> exampleUr = const Value.absent(),
                 Value<String> examplePs = const Value.absent(),
                 Value<String> illustration = const Value.absent(),
+                Value<String?> audioAsset = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<bool> isDemo = const Value.absent(),
               }) => LessonsCompanion(
@@ -7892,6 +9526,7 @@ class $$LessonsTableTableManager
                 exampleUr: exampleUr,
                 examplePs: examplePs,
                 illustration: illustration,
+                audioAsset: audioAsset,
                 sortOrder: sortOrder,
                 isDemo: isDemo,
               ),
@@ -7912,6 +9547,7 @@ class $$LessonsTableTableManager
                 required String exampleUr,
                 required String examplePs,
                 required String illustration,
+                Value<String?> audioAsset = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<bool> isDemo = const Value.absent(),
               }) => LessonsCompanion.insert(
@@ -7930,6 +9566,7 @@ class $$LessonsTableTableManager
                 exampleUr: exampleUr,
                 examplePs: examplePs,
                 illustration: illustration,
+                audioAsset: audioAsset,
                 sortOrder: sortOrder,
                 isDemo: isDemo,
               ),
@@ -11217,6 +12854,742 @@ typedef $$UnderstandingChecksTableProcessedTableManager =
       UnderstandingCheck,
       PrefetchHooks Function()
     >;
+typedef $$InstalledPackagesTableCreateCompanionBuilder =
+    InstalledPackagesCompanion Function({
+      Value<int> id,
+      required String packageId,
+      required int grade,
+      required String title,
+      required String version,
+      Value<String> province,
+      Value<bool> isDemo,
+      Value<int> sizeBytes,
+      Value<DateTime> installedAt,
+    });
+typedef $$InstalledPackagesTableUpdateCompanionBuilder =
+    InstalledPackagesCompanion Function({
+      Value<int> id,
+      Value<String> packageId,
+      Value<int> grade,
+      Value<String> title,
+      Value<String> version,
+      Value<String> province,
+      Value<bool> isDemo,
+      Value<int> sizeBytes,
+      Value<DateTime> installedAt,
+    });
+
+class $$InstalledPackagesTableFilterComposer
+    extends Composer<_$AppDatabase, $InstalledPackagesTable> {
+  $$InstalledPackagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get packageId => $composableBuilder(
+    column: $table.packageId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get grade => $composableBuilder(
+    column: $table.grade,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get province => $composableBuilder(
+    column: $table.province,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDemo => $composableBuilder(
+    column: $table.isDemo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get installedAt => $composableBuilder(
+    column: $table.installedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$InstalledPackagesTableOrderingComposer
+    extends Composer<_$AppDatabase, $InstalledPackagesTable> {
+  $$InstalledPackagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get packageId => $composableBuilder(
+    column: $table.packageId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get grade => $composableBuilder(
+    column: $table.grade,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get version => $composableBuilder(
+    column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get province => $composableBuilder(
+    column: $table.province,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDemo => $composableBuilder(
+    column: $table.isDemo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+    column: $table.sizeBytes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get installedAt => $composableBuilder(
+    column: $table.installedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$InstalledPackagesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $InstalledPackagesTable> {
+  $$InstalledPackagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get packageId =>
+      $composableBuilder(column: $table.packageId, builder: (column) => column);
+
+  GeneratedColumn<int> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get version =>
+      $composableBuilder(column: $table.version, builder: (column) => column);
+
+  GeneratedColumn<String> get province =>
+      $composableBuilder(column: $table.province, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDemo =>
+      $composableBuilder(column: $table.isDemo, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get installedAt => $composableBuilder(
+    column: $table.installedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$InstalledPackagesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $InstalledPackagesTable,
+          InstalledPackage,
+          $$InstalledPackagesTableFilterComposer,
+          $$InstalledPackagesTableOrderingComposer,
+          $$InstalledPackagesTableAnnotationComposer,
+          $$InstalledPackagesTableCreateCompanionBuilder,
+          $$InstalledPackagesTableUpdateCompanionBuilder,
+          (
+            InstalledPackage,
+            BaseReferences<
+              _$AppDatabase,
+              $InstalledPackagesTable,
+              InstalledPackage
+            >,
+          ),
+          InstalledPackage,
+          PrefetchHooks Function()
+        > {
+  $$InstalledPackagesTableTableManager(
+    _$AppDatabase db,
+    $InstalledPackagesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$InstalledPackagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$InstalledPackagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$InstalledPackagesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> packageId = const Value.absent(),
+                Value<int> grade = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> version = const Value.absent(),
+                Value<String> province = const Value.absent(),
+                Value<bool> isDemo = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> installedAt = const Value.absent(),
+              }) => InstalledPackagesCompanion(
+                id: id,
+                packageId: packageId,
+                grade: grade,
+                title: title,
+                version: version,
+                province: province,
+                isDemo: isDemo,
+                sizeBytes: sizeBytes,
+                installedAt: installedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String packageId,
+                required int grade,
+                required String title,
+                required String version,
+                Value<String> province = const Value.absent(),
+                Value<bool> isDemo = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<DateTime> installedAt = const Value.absent(),
+              }) => InstalledPackagesCompanion.insert(
+                id: id,
+                packageId: packageId,
+                grade: grade,
+                title: title,
+                version: version,
+                province: province,
+                isDemo: isDemo,
+                sizeBytes: sizeBytes,
+                installedAt: installedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$InstalledPackagesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $InstalledPackagesTable,
+      InstalledPackage,
+      $$InstalledPackagesTableFilterComposer,
+      $$InstalledPackagesTableOrderingComposer,
+      $$InstalledPackagesTableAnnotationComposer,
+      $$InstalledPackagesTableCreateCompanionBuilder,
+      $$InstalledPackagesTableUpdateCompanionBuilder,
+      (
+        InstalledPackage,
+        BaseReferences<
+          _$AppDatabase,
+          $InstalledPackagesTable,
+          InstalledPackage
+        >,
+      ),
+      InstalledPackage,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncQueueRowsTableCreateCompanionBuilder =
+    SyncQueueRowsCompanion Function({
+      Value<int> id,
+      required String kind,
+      required String payload,
+      Value<String> syncStatus,
+      Value<int> attempts,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> lastSyncedAt,
+    });
+typedef $$SyncQueueRowsTableUpdateCompanionBuilder =
+    SyncQueueRowsCompanion Function({
+      Value<int> id,
+      Value<String> kind,
+      Value<String> payload,
+      Value<String> syncStatus,
+      Value<int> attempts,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> lastSyncedAt,
+    });
+
+class $$SyncQueueRowsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncQueueRowsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncQueueRowsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get attempts =>
+      $composableBuilder(column: $table.attempts, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$SyncQueueRowsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncQueueRowsTable,
+          SyncQueueRow,
+          $$SyncQueueRowsTableFilterComposer,
+          $$SyncQueueRowsTableOrderingComposer,
+          $$SyncQueueRowsTableAnnotationComposer,
+          $$SyncQueueRowsTableCreateCompanionBuilder,
+          $$SyncQueueRowsTableUpdateCompanionBuilder,
+          (
+            SyncQueueRow,
+            BaseReferences<_$AppDatabase, $SyncQueueRowsTable, SyncQueueRow>,
+          ),
+          SyncQueueRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncQueueRowsTableTableManager(_$AppDatabase db, $SyncQueueRowsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncQueueRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncQueueRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncQueueRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<String> syncStatus = const Value.absent(),
+                Value<int> attempts = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
+              }) => SyncQueueRowsCompanion(
+                id: id,
+                kind: kind,
+                payload: payload,
+                syncStatus: syncStatus,
+                attempts: attempts,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastSyncedAt: lastSyncedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String kind,
+                required String payload,
+                Value<String> syncStatus = const Value.absent(),
+                Value<int> attempts = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
+              }) => SyncQueueRowsCompanion.insert(
+                id: id,
+                kind: kind,
+                payload: payload,
+                syncStatus: syncStatus,
+                attempts: attempts,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastSyncedAt: lastSyncedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncQueueRowsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncQueueRowsTable,
+      SyncQueueRow,
+      $$SyncQueueRowsTableFilterComposer,
+      $$SyncQueueRowsTableOrderingComposer,
+      $$SyncQueueRowsTableAnnotationComposer,
+      $$SyncQueueRowsTableCreateCompanionBuilder,
+      $$SyncQueueRowsTableUpdateCompanionBuilder,
+      (
+        SyncQueueRow,
+        BaseReferences<_$AppDatabase, $SyncQueueRowsTable, SyncQueueRow>,
+      ),
+      SyncQueueRow,
+      PrefetchHooks Function()
+    >;
+typedef $$AchievementsTableCreateCompanionBuilder =
+    AchievementsCompanion Function({
+      Value<int> id,
+      required int studentId,
+      required String code,
+      Value<int> points,
+      Value<DateTime> unlockedAt,
+    });
+typedef $$AchievementsTableUpdateCompanionBuilder =
+    AchievementsCompanion Function({
+      Value<int> id,
+      Value<int> studentId,
+      Value<String> code,
+      Value<int> points,
+      Value<DateTime> unlockedAt,
+    });
+
+class $$AchievementsTableFilterComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get points => $composableBuilder(
+    column: $table.points,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AchievementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get code => $composableBuilder(
+    column: $table.code,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get points => $composableBuilder(
+    column: $table.points,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AchievementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AchievementsTable> {
+  $$AchievementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
+  GeneratedColumn<int> get points =>
+      $composableBuilder(column: $table.points, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get unlockedAt => $composableBuilder(
+    column: $table.unlockedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$AchievementsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AchievementsTable,
+          Achievement,
+          $$AchievementsTableFilterComposer,
+          $$AchievementsTableOrderingComposer,
+          $$AchievementsTableAnnotationComposer,
+          $$AchievementsTableCreateCompanionBuilder,
+          $$AchievementsTableUpdateCompanionBuilder,
+          (
+            Achievement,
+            BaseReferences<_$AppDatabase, $AchievementsTable, Achievement>,
+          ),
+          Achievement,
+          PrefetchHooks Function()
+        > {
+  $$AchievementsTableTableManager(_$AppDatabase db, $AchievementsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AchievementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AchievementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AchievementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> studentId = const Value.absent(),
+                Value<String> code = const Value.absent(),
+                Value<int> points = const Value.absent(),
+                Value<DateTime> unlockedAt = const Value.absent(),
+              }) => AchievementsCompanion(
+                id: id,
+                studentId: studentId,
+                code: code,
+                points: points,
+                unlockedAt: unlockedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int studentId,
+                required String code,
+                Value<int> points = const Value.absent(),
+                Value<DateTime> unlockedAt = const Value.absent(),
+              }) => AchievementsCompanion.insert(
+                id: id,
+                studentId: studentId,
+                code: code,
+                points: points,
+                unlockedAt: unlockedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AchievementsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AchievementsTable,
+      Achievement,
+      $$AchievementsTableFilterComposer,
+      $$AchievementsTableOrderingComposer,
+      $$AchievementsTableAnnotationComposer,
+      $$AchievementsTableCreateCompanionBuilder,
+      $$AchievementsTableUpdateCompanionBuilder,
+      (
+        Achievement,
+        BaseReferences<_$AppDatabase, $AchievementsTable, Achievement>,
+      ),
+      Achievement,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -11247,4 +13620,10 @@ class $AppDatabaseManager {
       $$TutorMessagesTableTableManager(_db, _db.tutorMessages);
   $$UnderstandingChecksTableTableManager get understandingChecks =>
       $$UnderstandingChecksTableTableManager(_db, _db.understandingChecks);
+  $$InstalledPackagesTableTableManager get installedPackages =>
+      $$InstalledPackagesTableTableManager(_db, _db.installedPackages);
+  $$SyncQueueRowsTableTableManager get syncQueueRows =>
+      $$SyncQueueRowsTableTableManager(_db, _db.syncQueueRows);
+  $$AchievementsTableTableManager get achievements =>
+      $$AchievementsTableTableManager(_db, _db.achievements);
 }

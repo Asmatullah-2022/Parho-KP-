@@ -630,4 +630,47 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get offlineUpdate => 'اپ ڈیٹ';
+
+  @override
+  String get profileAchievements => 'کارنامے';
+
+  @override
+  String get achievementsTitle => 'کارنامے';
+
+  @override
+  String get achievementsPointsLabel => 'پوائنٹس';
+
+  @override
+  String get achievementsUnlockedLabel => 'کھل گئے';
+
+  @override
+  String get achievementsLockedLabel => 'بند';
+
+  @override
+  String get achievementsEmpty =>
+      'کارنامے حاصل کرنے کے لیے اسباق اور کوئز مکمل کریں۔';
+
+  @override
+  String get achievementFirstLesson => 'پہلا سبق';
+
+  @override
+  String get achievementFirstQuiz => 'پہلا کوئز';
+
+  @override
+  String get achievementPerfectScore => 'مکمل نمبر';
+
+  @override
+  String get achievementFiveLessons => '5 اسباق مکمل';
+
+  @override
+  String get achievementTenLessons => '10 اسباق مکمل';
+
+  @override
+  String get achievementSevenDayStreak => '7 دن کا تسلسل';
+
+  @override
+  String get reportExportCsv => 'CSV محفوظ کریں';
+
+  @override
+  String get reportCsvReady => 'رپورٹ CSV میں محفوظ ہو گئی';
 }

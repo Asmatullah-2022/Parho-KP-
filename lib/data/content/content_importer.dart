@@ -4,18 +4,26 @@ import 'package:drift/drift.dart';
 
 import '../database/app_database.dart';
 import 'content_models.dart';
+import 'content_validation.dart';
 
 /// Writes [ContentPackage]s into the local database. Used by the first-run demo
 /// seeding and available at runtime to import additional content packages
 /// (bundled JSON, downloaded packages, or — in future — a secure server).
 class ContentImporter {
-  ContentImporter(this.db);
+  ContentImporter(this.db, {this.validator = const ContentValidator()});
   final AppDatabase db;
 
+  /// Validates untrusted packages before any database write. Rejecting a bad
+  /// package throws [ContentValidationException] and leaves the DB untouched.
+  final ContentValidator validator;
+
   /// Imports a package parsed from JSON text.
-  Future<void> importJson(String jsonText) async {
-    final map = jsonDecode(jsonText) as Map<String, dynamic>;
-    await importPackage(ContentPackage.fromJson(map));
+  ///
+  /// The JSON is validated first; an invalid or malformed package throws
+  /// [ContentValidationException] and nothing is written (safe rejection).
+  Future<void> importJson(String jsonText, {bool replaceGrade = false}) async {
+    final pkg = validator.parse(jsonText);
+    await importPackage(pkg, replaceGrade: replaceGrade);
   }
 
   /// Inserts all subjects/units/lessons/questions of [pkg] for its grade.
@@ -26,6 +34,8 @@ class ContentImporter {
     ContentPackage pkg, {
     bool replaceGrade = false,
   }) async {
+    // Validate again so callers that build a package in-memory are also safe.
+    validator.validate(pkg);
     await db.transaction(() async {
       if (replaceGrade) {
         await db.deleteGradeContent(pkg.grade);

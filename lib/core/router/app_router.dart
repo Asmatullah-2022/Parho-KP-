@@ -13,6 +13,7 @@ import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/profile/edit_profile_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/progress/progress_screen.dart';
+import '../../features/gamification/achievements_screen.dart';
 import '../../features/report/student_report_screen.dart';
 import '../../features/search/search_screen.dart';
 import '../../features/teacher/class_detail_screen.dart';
@@ -159,6 +160,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.report,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const StudentReportScreen(),
+      ),
+      GoRoute(
+        path: Routes.achievements,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AchievementsScreen(),
       ),
       GoRoute(
         path: '${Routes.teacherClass}/:id',

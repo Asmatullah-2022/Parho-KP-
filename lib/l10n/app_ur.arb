@@ -230,5 +230,20 @@
 
   "offlinePackageSize": "پیکج سائز",
   "offlineAvailable": "دستیاب",
-  "offlineUpdate": "اپ ڈیٹ"
+  "offlineUpdate": "اپ ڈیٹ",
+
+  "profileAchievements": "کارنامے",
+  "achievementsTitle": "کارنامے",
+  "achievementsPointsLabel": "پوائنٹس",
+  "achievementsUnlockedLabel": "کھل گئے",
+  "achievementsLockedLabel": "بند",
+  "achievementsEmpty": "کارنامے حاصل کرنے کے لیے اسباق اور کوئز مکمل کریں۔",
+  "achievementFirstLesson": "پہلا سبق",
+  "achievementFirstQuiz": "پہلا کوئز",
+  "achievementPerfectScore": "مکمل نمبر",
+  "achievementFiveLessons": "5 اسباق مکمل",
+  "achievementTenLessons": "10 اسباق مکمل",
+  "achievementSevenDayStreak": "7 دن کا تسلسل",
+  "reportExportCsv": "CSV محفوظ کریں",
+  "reportCsvReady": "رپورٹ CSV میں محفوظ ہو گئی"
 }

@@ -230,5 +230,20 @@
 
   "offlinePackageSize": "Package size",
   "offlineAvailable": "Available",
-  "offlineUpdate": "Update"
+  "offlineUpdate": "Update",
+
+  "profileAchievements": "Achievements",
+  "achievementsTitle": "Achievements",
+  "achievementsPointsLabel": "Points",
+  "achievementsUnlockedLabel": "Unlocked",
+  "achievementsLockedLabel": "Locked",
+  "achievementsEmpty": "Complete lessons and quizzes to earn achievements.",
+  "achievementFirstLesson": "First Lesson",
+  "achievementFirstQuiz": "First Quiz",
+  "achievementPerfectScore": "Perfect Score",
+  "achievementFiveLessons": "5 Lessons Completed",
+  "achievementTenLessons": "10 Lessons Completed",
+  "achievementSevenDayStreak": "7-Day Streak",
+  "reportExportCsv": "Export CSV",
+  "reportCsvReady": "Report saved as CSV"
 }

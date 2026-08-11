@@ -1,6 +1,7 @@
 import '../content/content_importer.dart';
 import '../database/app_database.dart';
 import '../models/view_models.dart';
+import '../sync/sync_service.dart';
 
 /// Central data access + progress computation for the learning content.
 ///
@@ -8,8 +9,13 @@ import '../models/view_models.dart';
 /// progress, the "continue learning" target, offline states). All progress is
 /// computed from `lesson_progress` + `quiz_attempts` — never hardcoded.
 class LearningRepository {
-  LearningRepository(this.db);
+  LearningRepository(this.db, {this.sync});
   final AppDatabase db;
+
+  /// Optional low-bandwidth sync queue. When present, learning signals are
+  /// appended locally for later best-effort upload (never blocking, never
+  /// losing data). Null in unit tests that don't exercise sync.
+  final SyncService? sync;
 
   Future<Student?> currentStudent() => db.currentStudent();
 
@@ -238,6 +244,11 @@ class LearningRepository {
       percent: percent,
       completed: percent >= 60,
     );
+    // Queue anonymous learning signals for later best-effort sync.
+    await sync?.enqueueQuiz(
+        lessonId: lessonId, score: score, total: questions.length);
+    await sync?.enqueueProgress(
+        lessonId: lessonId, percent: percent, completed: percent >= 60);
     return attemptId;
   }
 

@@ -168,6 +168,20 @@ Future<void> seedDemoContentIfNeeded(AppDatabase db) async {
     await importer.importPackage(_generatedPackage(grade));
   }
 
+  // Record installed-package metadata so the content-packages UI can show an
+  // "Installed" status for the built-in demo curriculum (versioned).
+  for (final grade in demoGrades) {
+    await db.upsertInstalledPackage(
+      packageId: 'kp-grade-$grade',
+      grade: grade,
+      title: 'Grade $grade (Demo)',
+      version: '$_seedVersion.0.0',
+      province: 'Khyber Pakhtunkhwa',
+      isDemo: true,
+      sizeBytes: 250 * 1024,
+    );
+  }
+
   await db.putSetting(_seedVersionKey, _seedVersion);
 }
 

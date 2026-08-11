@@ -628,4 +628,47 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get offlineUpdate => 'تازه کول';
+
+  @override
+  String get profileAchievements => 'لاسته راوړنې';
+
+  @override
+  String get achievementsTitle => 'لاسته راوړنې';
+
+  @override
+  String get achievementsPointsLabel => 'پوائنټونه';
+
+  @override
+  String get achievementsUnlockedLabel => 'خلاص شوي';
+
+  @override
+  String get achievementsLockedLabel => 'تړل شوي';
+
+  @override
+  String get achievementsEmpty =>
+      'د لاسته راوړنو لپاره لوستونه او ازموینې بشپړې کړئ.';
+
+  @override
+  String get achievementFirstLesson => 'لومړی لوست';
+
+  @override
+  String get achievementFirstQuiz => 'لومړۍ ازموینه';
+
+  @override
+  String get achievementPerfectScore => 'بشپړ نمرې';
+
+  @override
+  String get achievementFiveLessons => '۵ لوستونه بشپړ';
+
+  @override
+  String get achievementTenLessons => '۱۰ لوستونه بشپړ';
+
+  @override
+  String get achievementSevenDayStreak => 'د ۷ ورځو لړۍ';
+
+  @override
+  String get reportExportCsv => 'CSV خوندي کړئ';
+
+  @override
+  String get reportCsvReady => 'راپور په CSV کې خوندي شو';
 }
