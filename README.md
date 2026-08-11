@@ -163,16 +163,96 @@ flutter test                           # unit + widget tests (passing)
 flutter build apk --debug              # → build/app/outputs/flutter-apk/app-debug.apk
 ```
 
-Release build: `flutter build apk --release` (add your own signing config in
-`android/app/build.gradle.kts`).
+Release build: `flutter build apk --release`. Release signing is already wired
+via `android/key.properties` — see **Building on Windows with Android Studio**
+below for the full, exact procedure.
 
 > **Note on this repository's build environment:** this project was developed in
-> a sandbox whose network policy blocks `dl.google.com` (the Android SDK and
-> Google Maven / AndroidX host). `flutter analyze` and `flutter test` pass
-> there, but `flutter build apk` cannot complete because the Android SDK and
-> AndroidX dependencies can't be downloaded. Run the build command above on any
-> machine or CI with normal access to `dl.google.com` and it will produce the
-> APK at the path shown.
+> a sandbox with **no Android SDK** (`flutter build apk` reports "No Android SDK
+> found") and a network policy that blocks `dl.google.com`. `flutter analyze`
+> and `flutter test` pass there, but the APK/AAB **cannot** be built in that
+> sandbox. Run the commands below on any machine with the Android SDK and it
+> will produce the artifacts at the paths shown. No build success is faked here.
+
+## Building on Windows with Android Studio (exact steps)
+
+Do this on your own Windows PC (or macOS/Linux — commands are identical).
+
+### 0. One-time prerequisites
+1. Install **Flutter** (`flutter.dev/docs/get-started/install/windows`) and add
+   `flutter\bin` to PATH.
+2. Install **Android Studio**, then open **More Actions → SDK Manager** and
+   install: **Android SDK Platform 34** (or the latest), **Android SDK
+   Build-Tools**, **Android SDK Command-line Tools**, **Android SDK
+   Platform-Tools**.
+3. Accept licenses: `flutter doctor --android-licenses` (answer `y` to all).
+4. Verify: `flutter doctor` — the **Android toolchain** line must be a ✓.
+
+### 1. Get the project ready
+```powershell
+git clone <this-repo-url>
+cd Parho-KP-
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs   # Drift/codegen
+flutter gen-l10n                                            # localizations
+flutter analyze                                             # expect: No issues found
+flutter test                                                # expect: All tests passed (127)
+```
+
+### 2. Create your release keystore (ONCE, keep it OUTSIDE the repo)
+```powershell
+keytool -genkey -v -keystore %USERPROFILE%\parho-kp-upload.jks ^
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+Then create `android\key.properties` (this file is **git-ignored** — never
+commit it). Copy `android\key.properties.example` and fill in real values:
+```properties
+storeFile=C:/Users/<you>/parho-kp-upload.jks
+storePassword=<your store password>
+keyAlias=upload
+keyPassword=<your key password>
+```
+If `android\key.properties` is missing, the build falls back to **debug**
+signing (fine for testing, **not** accepted by Google Play).
+
+### 3. Build the release APK (sideload / direct install)
+```powershell
+flutter build apk --release ^
+  --dart-define=PARHO_CATALOG_URL=https://YOUR-CDN/parho-kp/catalog.json ^
+  --dart-define=PARHO_PUBLIC_KEY=<your base64 Ed25519 PUBLIC key>
+```
+**Output APK:** `build\app\outputs\flutter-apk\app-release.apk`
+
+### 4. Build the Android App Bundle (for Google Play)
+```powershell
+flutter build appbundle --release ^
+  --dart-define=PARHO_CATALOG_URL=https://YOUR-CDN/parho-kp/catalog.json ^
+  --dart-define=PARHO_PUBLIC_KEY=<your base64 Ed25519 PUBLIC key>
+```
+**Output AAB:** `build\app\outputs\bundle\release\app-release.aab`
+
+Upload the `.aab` to the Google Play Console.
+
+### 5. Where the keys go
+- **Public Ed25519 key** → passed into the app at build time via
+  `--dart-define=PARHO_PUBLIC_KEY=...`; it is the ONLY key inside the APK. It
+  lives in `CatalogConfig.production.publicKeyBase64` (read from the
+  `--dart-define`). Also flip the app to production by using
+  `CatalogConfig.production` (which already sets `useMockHost: false`).
+- **Private Ed25519 key** → used ONLY by `tool/sign_package.dart` on a secure
+  machine, read from the `PARHO_PRIVATE_KEY` environment variable. It must
+  **never** be committed, put in the APK, in `--dart-define`, or logged. Store
+  it in a secret manager / offline signer.
+- **Release keystore** (`*.jks`) + `android/key.properties` → on your build
+  machine only; both are git-ignored.
+
+### 6. Hosting the catalog + packages
+1. Build/sign each package: `dart run tool/sign_package.dart ...` (see
+   **Production deployment guide**). It prints the `sha256` + `signature`.
+2. Assemble `catalog.json` = `{ "manifestVersion":1, "packages":[ ...entries ] }`.
+3. Upload `catalog.json` and every `*.zip` to a **static HTTPS host / CDN**
+   (the app refuses non-HTTPS URLs). Point `PARHO_CATALOG_URL` at `catalog.json`
+   and make sure the manifest `downloadUrl`s are the HTTPS URLs of the ZIPs.
 
 ## Replacing the demo content
 
